@@ -1,0 +1,10 @@
+dist
+dist-edge
+node_modules
+.claude
+.agents
+.taste-skill
+.probe
+package-lock.json
+playwright-report
+test-results

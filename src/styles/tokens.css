@@ -1,0 +1,74 @@
+/*
+ * FOLIA tokens. Every colour, size and duration in the app comes from here.
+ * Direction: "The pinned poster" (taste-skill seed 1801276998), palette
+ * "Mustard and black", type Hanken Grotesk; studio screens follow the
+ * "Framed sheet" app style (seed 2130946853). See DESIGN.md.
+ */
+:root {
+  /* Ground, ink and the one accent */
+  --field: #e1ac10; /* mustard: the landing ground and the studio frame */
+  --field-step: #cd9d0f; /* one tone step on mustard: panels on the field */
+  --ink: #0b0b0b; /* text and hair */
+  --ink-muted: #4d3d0a; /* secondary text on mustard, 4.6:1 */
+  --accent: #24338f; /* royal blue: the primary action and the cut line */
+  --accent-strong: #1a2670; /* pressed / hovered accent */
+  --accent-ink: #ffffff;
+
+  /* The studio sheet */
+  --paper: #ffffff;
+  --paper-step: #f3f3f0; /* panels on the sheet: one tone step */
+  --paper-active: #e9e9e4; /* selected option on the sheet */
+  --edge: #e8e8e4; /* the sheet's 1px edge and table rules */
+  --control: #c9c9c2; /* input borders, one step stronger */
+  --text: #0b0b0b;
+  --text-muted: #5e5a50; /* 7:1 on white */
+
+  /* Status, as pale pairs */
+  --positive: #247b50;
+  --positive-bg: #dcfae5;
+  --positive-ink: #04250e;
+  --negative: #b4232a;
+  --negative-bg: #ffedea;
+  --negative-ink: #831c1e;
+  --notice-bg: #fffbeb;
+  --notice-edge: #fde68a;
+  --notice-ink: #92400e;
+
+  /* Head-sheet drawings */
+  --draw-head-field: #f2c94c; /* the head drawn on the mustard field */
+  --draw-shade-field: #c4930b; /* its shaded face */
+  --draw-head-paper: #ebe8e1; /* the head drawn on the white sheet */
+  --draw-shade-paper: #d9d5cb;
+  --draw-hair: #0b0b0b;
+  --draw-hair-lit: #3b3426; /* strand lines on the hair mass */
+  --draw-cut: var(--accent);
+
+  /* Type: one family, two weights */
+  --font: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem); /* 13–14px */
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem); /* 17–19px */
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem); /* 20–26px */
+  --step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem); /* 32–64px */
+  --step-display: clamp(2.75rem, 1rem + 6vw, 6.5rem); /* the statement size */
+  --app-title: 1.5rem; /* studio h1: 24px */
+  --app-body: 1rem; /* studio body: 16px */
+  --app-small: 0.875rem; /* studio meta: 14px */
+
+  /* Space and frame */
+  --margin: clamp(16px, 2.2vw, 32px);
+  --gutter: 24px;
+  --section-gap: clamp(96px, 12vw, 200px);
+  --sheet-inset: 8px;
+  --sheet-radius: 16px;
+  --control-height: 48px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --t-press: 140ms;
+  --t-hover: 180ms;
+  --t-ui: 240ms;
+  --t-reveal: 800ms;
+  --stagger: 80ms;
+}
