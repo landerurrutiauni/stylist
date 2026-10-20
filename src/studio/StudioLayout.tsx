@@ -12,6 +12,10 @@ const STEPS = [
   { key: 'resultados', label: 'Resultados', path: '/estudio/resultados' },
 ] as const;
 
+/** The path of the full page load. */
+const LOADED_PATH = window.location.pathname;
+let navigated = false;
+
 function currentStep(pathname: string): number {
   const segment = pathname.split('/')[2] ?? 'fotos';
   if (segment === 'analisis' || segment === 'comparar') return 4;
@@ -30,8 +34,12 @@ export function StudioLayout() {
   const dialog = useRef<ConfirmDialogHandle>(null);
   const step = currentStep(location.pathname);
 
-  // Move focus to the new screen's title so screen readers announce it.
+  // After an in-app navigation, move focus to the new screen's title so
+  // screen readers announce it. On the screen the page was loaded at, focus
+  // stays at the top of the document so the skip link comes first.
   useEffect(() => {
+    if (!navigated && window.location.pathname === LOADED_PATH) return;
+    navigated = true;
     window.scrollTo({ top: 0 });
     const heading = document.querySelector<HTMLElement>('main h1');
     heading?.focus({ preventScroll: true });

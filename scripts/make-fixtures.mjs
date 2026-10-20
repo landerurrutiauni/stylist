@@ -31,7 +31,9 @@ const profile = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="15
 </svg>`;
 
 async function render(svg, file, transform = (image) => image) {
-  await transform(sharp(Buffer.from(svg))).jpeg({ quality: 88 }).toFile(path.join(out, file));
+  await transform(sharp(Buffer.from(svg)))
+    .jpeg({ quality: 88 })
+    .toFile(path.join(out, file));
 }
 
 await render(frontal, 'frontal.jpg');
@@ -42,5 +44,8 @@ await sharp(Buffer.from(frontal)).webp({ quality: 85 }).toFile(path.join(out, 'f
 await sharp(Buffer.from(profile)).png().toFile(path.join(out, 'profile.png'));
 await sharp(Buffer.from(frontal)).resize(300, 375).jpeg().toFile(path.join(out, 'small.jpg'));
 // A PNG with EXIF-like metadata is enough to prove re-encoding strips it.
-await sharp(Buffer.from(frontal)).withMetadata({ exif: { IFD0: { Copyright: 'FOLIA test', Artist: 'Fixture' } } }).jpeg().toFile(path.join(out, 'with-exif.jpg'));
+await sharp(Buffer.from(frontal))
+  .withMetadata({ exif: { IFD0: { Copyright: 'FOLIA test', Artist: 'Fixture' } } })
+  .jpeg()
+  .toFile(path.join(out, 'with-exif.jpg'));
 console.log('fixtures written to', out);

@@ -39,7 +39,10 @@ function contentSecurityPolicy(apiBase: string): Plugin {
     name: 'folia-csp',
     apply: 'build',
     transformIndexHtml(html) {
-      return html.replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${policy}" />`);
+      return html.replace(
+        '<meta charset="UTF-8" />',
+        `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${policy}" />`,
+      );
     },
   };
 }

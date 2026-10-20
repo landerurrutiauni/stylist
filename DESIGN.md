@@ -11,7 +11,7 @@ ampliado con lo que FOLIA necesita: el sistema de dibujo, el movimiento, la acce
 
 ## 1. Tema visual y atmósfera
 
-**La idea.** Un peluquero planifica un corte sobre una *ficha de cabeza*: una cabeza en blanco vista
+**La idea.** Un peluquero planifica un corte sobre una _ficha de cabeza_: una cabeza en blanco vista
 de frente y de perfil, sobre la que se dibuja el corte con líneas guía. FOLIA pide justo esas dos
 vistas, así que la ficha de cabeza es el marco de todas las imágenes del producto:
 
@@ -34,21 +34,21 @@ La tipografía habla; el color llega en campos completos, no como decoración.
 
 ## 2. Paleta y funciones del color
 
-| Token | Hex | Función | Contraste |
-| --- | --- | --- | --- |
-| `--field` | `#e1ac10` | Mostaza: fondo de la portada y marco del estudio | tinta sobre él 8,6:1 |
-| `--field-step` | `#cd9d0f` | Un paso de tono sobre mostaza: ventana del héroe, paneles, controles segmentados | — |
-| `--ink` | `#0b0b0b` | Texto, pelo en los dibujos, relleno oscuro | 19,5:1 sobre blanco |
-| `--ink-muted` | `#4d3d0a` | Texto secundario sobre mostaza | 4,6:1 sobre mostaza |
-| `--accent` | `#24338f` | Azul real: la acción principal y la línea de corte | blanco encima 10,8:1; 4,7:1 sobre mostaza |
-| `--accent-strong` | `#1a2670` | Acento al pasar o pulsar | — |
-| `--paper` | `#ffffff` | Hoja del estudio | — |
-| `--paper-step` | `#f3f3f0` | Paneles y opciones sobre la hoja | — |
-| `--paper-active` | `#e9e9e4` | Opción al pasar, pista vacía del progreso | — |
-| `--edge` | `#e8e8e4` | Filo de la hoja, reglas de tablas y listas (solo estudio) | — |
-| `--control` | `#c9c9c2` | Bordes de campos y selectores | — |
-| `--text-muted` | `#5e5a50` | Texto secundario sobre blanco | 7:1 |
-| Pares de estado | `--positive*`, `--negative*`, `--notice*` | Fondo pálido + tinta oscura del mismo tono | ≥ 4,5:1 |
+| Token             | Hex                                       | Función                                                                          | Contraste                                 |
+| ----------------- | ----------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------- |
+| `--field`         | `#e1ac10`                                 | Mostaza: fondo de la portada y marco del estudio                                 | tinta sobre él 8,6:1                      |
+| `--field-step`    | `#cd9d0f`                                 | Un paso de tono sobre mostaza: ventana del héroe, paneles, controles segmentados | —                                         |
+| `--ink`           | `#0b0b0b`                                 | Texto, pelo en los dibujos, relleno oscuro                                       | 19,5:1 sobre blanco                       |
+| `--ink-muted`     | `#4d3d0a`                                 | Texto secundario sobre mostaza                                                   | 4,6:1 sobre mostaza                       |
+| `--accent`        | `#24338f`                                 | Azul real: la acción principal y la línea de corte                               | blanco encima 10,8:1; 4,7:1 sobre mostaza |
+| `--accent-strong` | `#1a2670`                                 | Acento al pasar o pulsar                                                         | —                                         |
+| `--paper`         | `#ffffff`                                 | Hoja del estudio                                                                 | —                                         |
+| `--paper-step`    | `#f3f3f0`                                 | Paneles y opciones sobre la hoja                                                 | —                                         |
+| `--paper-active`  | `#e9e9e4`                                 | Opción al pasar, pista vacía del progreso                                        | —                                         |
+| `--edge`          | `#e8e8e4`                                 | Filo de la hoja, reglas de tablas y listas (solo estudio)                        | —                                         |
+| `--control`       | `#c9c9c2`                                 | Bordes de campos y selectores                                                    | —                                         |
+| `--text-muted`    | `#5e5a50`                                 | Texto secundario sobre blanco                                                    | 7:1                                       |
+| Pares de estado   | `--positive*`, `--negative*`, `--notice*` | Fondo pálido + tinta oscura del mismo tono                                       | ≥ 4,5:1                                   |
 
 Colores de dibujo: `--draw-head-field #f2c94c` / `--draw-shade-field #c4930b` (cabeza sobre
 mostaza), `--draw-head-paper #ebe8e1` / `--draw-shade-paper #d9d5cb` (cabeza sobre blanco),
@@ -73,20 +73,20 @@ Una sola familia: **Hanken Grotesk**, pesos 400 y 500, alojada en el propio siti
 `@fontsource/hanken-grotesk` (sin peticiones a un servicio de fuentes, lo que además evita enviar
 la IP de cada visitante a un tercero).
 
-| Uso | Tamaño | Peso | Espaciado / interlineado |
-| --- | --- | --- | --- |
-| Titular del héroe | `clamp(44px, 4.4vw, 64px)`; móvil 10,5vw | 500 | -0,05em / 0,95 |
-| Verbos de capítulo | `clamp(80px, 11vw, 220px)`; móvil 24vw | 500 | -0,05em / 0,85 |
-| Palabra de la llamada | `clamp(96px, 26vw, 420px)` | 500 | -0,06em / 0,75 |
-| Nombre del pie | 30vw (móvil 36vw), recortado | 500 | -0,06em |
-| Título de sección (portada) | `--step-head` 32–64 px | 500 | -0,04em |
-| Entradilla | `--step-lead` 20–26 px | 400 | 1,3–1,35 |
-| Tabla del catálogo | `clamp(20px, 2.1vw, 30px)` | 400 | 1,5 |
-| Texto (portada) | `--step-body` 17–19 px | 400 | 1,5 |
-| Título del estudio (h1) | 28 px | 500 | -0,02em / 1,15 |
-| Sección del estudio | 20 px | 500 | -0,01em |
-| Texto del estudio | 16 px | 400 | 1,5 |
-| Metadatos, pies | 13–14 px | 400 | 1,45 |
+| Uso                         | Tamaño                                   | Peso | Espaciado / interlineado |
+| --------------------------- | ---------------------------------------- | ---- | ------------------------ |
+| Titular del héroe           | `clamp(44px, 4.4vw, 64px)`; móvil 10,5vw | 500  | -0,05em / 0,95           |
+| Verbos de capítulo          | `clamp(80px, 11vw, 220px)`; móvil 24vw   | 500  | -0,05em / 0,85           |
+| Palabra de la llamada       | `clamp(96px, 26vw, 420px)`               | 500  | -0,06em / 0,75           |
+| Nombre del pie              | 30vw (móvil 36vw), recortado             | 500  | -0,06em                  |
+| Título de sección (portada) | `--step-head` 32–64 px                   | 500  | -0,04em                  |
+| Entradilla                  | `--step-lead` 20–26 px                   | 400  | 1,3–1,35                 |
+| Tabla del catálogo          | `clamp(20px, 2.1vw, 30px)`               | 400  | 1,5                      |
+| Texto (portada)             | `--step-body` 17–19 px                   | 400  | 1,5                      |
+| Título del estudio (h1)     | 28 px                                    | 500  | -0,02em / 1,15           |
+| Sección del estudio         | 20 px                                    | 500  | -0,01em                  |
+| Texto del estudio           | 16 px                                    | 400  | 1,5                      |
+| Metadatos, pies             | 13–14 px                                 | 400  | 1,45                     |
 
 Reglas: titulares de dos líneas como máximo en cualquier ancho (cortes escritos con `<br>`);
 mayúscula solo inicial; sin etiquetas en mayúsculas ni antetítulos, sin monoespaciada, sin
@@ -99,7 +99,7 @@ semicorto en los rangos.
 **Botones** (`src/styles/base.css`). Esquinas rectas, un solo relleno, 48 px de alto (44 px en
 tarjetas), con el nombre de la acción. `btn-primary` azul (uno por pantalla), `btn-ink` negro,
 `btn-outline` anillo interior de 2 px, `btn-field` mostaza sobre tinta, `btn-danger` para confirmar
-el borrado, `btn-text` subrayado. Al pulsar: `scale(0.97)` en 140 ms. El *hover* solo con
+el borrado, `btn-text` subrayado. Al pulsar: `scale(0.97)` en 140 ms. El _hover_ solo con
 `(hover: hover)`. Deshabilitado: relleno gris, texto legible y el motivo escrito al lado
 (`.action-reason`).
 
@@ -182,15 +182,15 @@ lugar, cada corte **se dibuja a partir de parámetros** (`shared/catalog/styles.
 
 Moderado y siempre prescindible:
 
-| Movimiento | Dónde | Cómo |
-| --- | --- | --- |
-| Firma: el espejo se abre | Héroe, contenedor de 200svh | `clip-path: inset(... round arco)` según `--p` (progreso de scroll) |
-| Los verbos se quedan | Capítulos | `position: sticky` dentro de cada panel |
-| Las tarjetas cruzan el campo de pelo | Escaparate, 300svh | `translateX` según `--p` |
-| Entradas | Catálogo, pie | sube 24 px + opacidad, 800 ms, 80 ms de escalonado, una vez |
-| Fundido de respuestas | Panel de preguntas | 150 ms |
-| Respuesta al gesto | Botones, opciones, enlaces | pulsar 140 ms, color 180 ms |
-| Etapa en curso | Análisis | el marcador de la etapa actual late (se detiene con movimiento reducido) |
+| Movimiento                           | Dónde                       | Cómo                                                                     |
+| ------------------------------------ | --------------------------- | ------------------------------------------------------------------------ |
+| Firma: el espejo se abre             | Héroe, contenedor de 200svh | `clip-path: inset(... round arco)` según `--p` (progreso de scroll)      |
+| Los verbos se quedan                 | Capítulos                   | `position: sticky` dentro de cada panel                                  |
+| Las tarjetas cruzan el campo de pelo | Escaparate, 300svh          | `translateX` según `--p`                                                 |
+| Entradas                             | Catálogo, pie               | sube 24 px + opacidad, 800 ms, 80 ms de escalonado, una vez              |
+| Fundido de respuestas                | Panel de preguntas          | 150 ms                                                                   |
+| Respuesta al gesto                   | Botones, opciones, enlaces  | pulsar 140 ms, color 180 ms                                              |
+| Etapa en curso                       | Análisis                    | el marcador de la etapa actual late (se detiene con movimiento reducido) |
 
 El progreso de scroll se calcula en `src/landing/motion.ts`; nunca se secuestra el scroll. Con
 `prefers-reduced-motion: reduce` el héroe es una pantalla fija, el escaparate es una rejilla, no
@@ -210,13 +210,13 @@ tarjetas idénticas con icono, antetítulos en mayúsculas, etiquetas monoespaci
 
 ## 10. Comportamiento responsive
 
-| Punto de corte | Cambio |
-| --- | --- |
-| ≤ 1100 px | Se oculta el lateral «Tu ficha» |
-| ≤ 1000 px | Los consejos de foto pasan bajo las ranuras; tarjetas de 2 en 2 |
-| ≤ 900 px | La lista de pasos se convierte en «Paso · n de 5» |
-| ≤ 760 px | Composiciones móviles de la portada: ventana de 78vw al 30 % de altura; capítulos apilados; escaparate en lista; filas del catálogo en dos líneas; respuestas de las preguntas en línea |
-| ≤ 640 px | Desaparece el marco del estudio (la hoja es la pantalla); una tarjeta por fila; filtros de 2 en 2; el desglose pasa a filas de dos líneas |
+| Punto de corte | Cambio                                                                                                                                                                                  |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ≤ 1100 px      | Se oculta el lateral «Tu ficha»                                                                                                                                                         |
+| ≤ 1000 px      | Los consejos de foto pasan bajo las ranuras; tarjetas de 2 en 2                                                                                                                         |
+| ≤ 900 px       | La lista de pasos se convierte en «Paso · n de 5»                                                                                                                                       |
+| ≤ 760 px       | Composiciones móviles de la portada: ventana de 78vw al 30 % de altura; capítulos apilados; escaparate en lista; filas del catálogo en dos líneas; respuestas de las preguntas en línea |
+| ≤ 640 px       | Desaparece el marco del estudio (la hoja es la pantalla); una tarjeta por fila; filtros de 2 en 2; el desglose pasa a filas de dos líneas                                               |
 
 Las zonas táctiles miden 44 px o más. Comprobado a 390, 768 y 1440 px.
 
