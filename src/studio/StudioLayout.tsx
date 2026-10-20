@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
+import { LOADED_PATH } from '../lib/pageLoad.ts';
 import { useSession } from '../session/session.tsx';
 import { ConfirmDialog, type ConfirmDialogHandle } from '../ui/ConfirmDialog.tsx';
 import { Wordmark } from '../ui/Wordmark.tsx';
@@ -12,8 +13,6 @@ const STEPS = [
   { key: 'resultados', label: 'Resultados', path: '/estudio/resultados' },
 ] as const;
 
-/** The path of the full page load. */
-const LOADED_PATH = window.location.pathname;
 let navigated = false;
 
 function currentStep(pathname: string): number {

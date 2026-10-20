@@ -20,7 +20,7 @@ const FRONT_MARKS: Mark[] = [
 ];
 
 const PROFILE_MARKS: Mark[] = [
-  { label: 'Línea del perfil', x: 30, y: 50, side: 'left' },
+  { label: 'Perfil', x: 30, y: 50, side: 'left' },
   { label: 'Mandíbula', x: 58, y: 70, side: 'right' },
   { label: 'Mentón', x: 38, y: 69, side: 'left' },
   { label: 'Nuca', x: 70, y: 62, side: 'right' },
@@ -30,7 +30,7 @@ const PROFILE_MARKS: Mark[] = [
 export function AnnotatedHead({ view, surface }: { view: 'front' | 'profile'; surface: 'field' | 'paper' }) {
   const marks = view === 'front' ? FRONT_MARKS : PROFILE_MARKS;
   return (
-    <div className="annotated">
+    <div className="annotated" data-reveal>
       <HeadSheet spec={BARE} view={view} surface={surface} hair={false} />
       {marks.map((mark) => (
         <span key={mark.label} className={`mark mark-${mark.side}`} style={{ left: `${mark.x}%`, top: `${mark.y}%` }}>

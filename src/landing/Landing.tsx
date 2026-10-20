@@ -131,7 +131,7 @@ function Verbs() {
       </h2>
       <ol className="verbs-list">
         {VERBS.map((item, index) => (
-          <li key={item.verb} className={`verb-panel ${item.tone}`}>
+          <li key={item.verb} className={`verb-panel ${item.tone}`} data-reveal>
             <div className="verb-picture">
               {index === 0 ? <AnnotatedHead view="front" surface="field" /> : null}
               {index === 1 ? <AnnotatedHead view="profile" surface="field" /> : null}
@@ -315,7 +315,7 @@ function Questions() {
   const [selected, setSelected] = useState(0);
   const id = useId();
   return (
-    <section className="faq" aria-labelledby="faq-title">
+    <section className="faq" aria-labelledby="faq-title" data-reveal>
       <div className="faq-list">
         <h2 id="faq-title" className="faq-title">
           Tus dudas

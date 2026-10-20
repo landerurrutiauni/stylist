@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react';
-import { emptyDraft, type DraftAnswers } from '../../shared/schema/answers.ts';
+import type { DraftAnswers } from '../../shared/schema/answers.ts';
+import { emptyDraft } from '../../shared/schema/draft.ts';
 import type { AnalysisEnvelope } from '../../shared/schema/analysis.ts';
 import { releasePhoto, type ProcessedPhoto } from '../images/process.ts';
 import type { PhotoKind } from '../images/quality.ts';

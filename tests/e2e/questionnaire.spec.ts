@@ -129,6 +129,7 @@ test('19 · the questionnaire works with the keyboard alone', async ({ page }) =
 
 test('the skip link jumps to the content', async ({ page }) => {
   await page.goto('estudio/fotos');
+  await expect(page.getByRole('heading', { level: 1, name: 'Tus dos fotos' })).toBeVisible();
   await page.keyboard.press('Tab');
   const skip = page.getByRole('link', { name: 'Saltar al contenido' });
   await expect(skip).toBeFocused();

@@ -94,7 +94,12 @@ export function PreviewPanel({ item, size }: { item: Item; size: 'compact' | 'fu
               </div>
             ) : null}
             <div>
-              <img src={preview.url} alt={`Simulación generada por IA de tu foto frontal con ${item.rec.variantName}`} />
+              <img
+                src={preview.url}
+                alt={`Simulación generada por IA de tu foto frontal con ${item.rec.variantName}`}
+                width={frontal.width}
+                height={frontal.height}
+              />
               <p className="preview-tag">Simulación con IA</p>
             </div>
           </div>

@@ -113,22 +113,8 @@ export type DraftAnswers = Omit<Answers, 'expression' | 'texture' | 'density' | 
   maintenance: Maintenance | null;
 };
 
-export const emptyDraft = (): DraftAnswers => ({
-  expression: null,
-  texture: null,
-  density: null,
-  considerations: [],
-  considerationsNote: '',
-  currentLength: null,
-  maintenance: null,
-  aesthetics: [],
-  imageNote: '',
-  tools: [],
-  routine: null,
-  goals: [],
-  avoidNote: '',
-  freeNote: '',
-});
+// emptyDraft lives in draft.ts so the landing page can start a session without loading zod.
+export { emptyDraft } from './draft.ts';
 
 /** Refinement text sent with a regeneration request ("menos mantenimiento, más flequillos"). */
 export const REFINEMENT_LIMIT = 400;

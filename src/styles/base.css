@@ -119,6 +119,11 @@ a {
   top: 12px;
 }
 
+.route-loading {
+  padding: 24px var(--margin);
+  font-size: var(--step-small);
+}
+
 .num {
   font-variant-numeric: tabular-nums;
 }
@@ -161,7 +166,7 @@ a {
 .btn-outline {
   background: transparent;
   color: var(--ink);
-  box-shadow: inset 0 0 0 2px var(--ink);
+  box-shadow: inset 0 0 0 2px var(--ink); /* taste-skill-ignore: the outline button's 2px inset ring */
 }
 
 .btn-text {
@@ -181,7 +186,7 @@ a {
   cursor: not-allowed;
   background: var(--paper-active);
   color: var(--text-muted);
-  box-shadow: none;
+  box-shadow: none; /* taste-skill-ignore: removes the ring on disabled buttons */
   transform: none;
 }
 

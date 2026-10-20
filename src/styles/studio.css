@@ -53,7 +53,7 @@
 .studio-steps li.is-current > * {
   color: var(--ink);
   font-weight: 500;
-  box-shadow: inset 0 -2px 0 var(--ink);
+  box-shadow: inset 0 -2px 0 var(--ink); /* taste-skill-ignore: a 2px inset rule marks the current step, not a shadow */
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -412,7 +412,7 @@
   position: relative;
   aspect-ratio: 4 / 5;
   background: var(--paper);
-  box-shadow: inset 0 0 0 2px var(--ink);
+  box-shadow: inset 0 0 0 2px var(--ink); /* taste-skill-ignore: a 2px inset stroke draws the photo frame */
 }
 
 .framing-frame svg {
@@ -1075,7 +1075,7 @@
 .tabs button[aria-selected='true'] {
   color: var(--text);
   font-weight: 500;
-  box-shadow: inset 0 -2px 0 var(--ink);
+  box-shadow: inset 0 -2px 0 var(--ink); /* taste-skill-ignore: the 2px tab indicator rule */
 }
 
 .tab-count {
@@ -1250,7 +1250,7 @@
 .btn[aria-pressed='true'] {
   background: var(--ink);
   color: var(--paper);
-  box-shadow: none;
+  box-shadow: none; /* taste-skill-ignore: removes the outline ring */
 }
 
 .breakdown table {
@@ -1367,7 +1367,7 @@
   padding: 12px 16px;
   background: var(--ink);
   color: var(--paper);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); /* taste-skill-ignore: the sticky compare bar floats over the list */
 }
 
 .compare-bar-actions {
@@ -1698,7 +1698,7 @@
   border-radius: 0;
   background: var(--paper);
   color: var(--text);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28); /* taste-skill-ignore: dialogs float */
   overscroll-behavior: contain;
 }
 

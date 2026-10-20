@@ -94,8 +94,13 @@ export function ComparePage() {
               {[a, b].map((item) => (
                 <div key={item.rec.styleId} role="columnheader">
                   <div className="compare-figure">
-                    {state.previews[item.rec.styleId] ? (
-                      <img src={state.previews[item.rec.styleId]!.url} alt={`Simulación con IA de tu foto con ${item.rec.variantName}`} />
+                    {state.previews[item.rec.styleId] && state.photos.frontal ? (
+                      <img
+                        src={state.previews[item.rec.styleId]!.url}
+                        alt={`Simulación con IA de tu foto con ${item.rec.variantName}`}
+                        width={state.photos.frontal.width}
+                        height={state.photos.frontal.height}
+                      />
                     ) : (
                       <HeadSheet spec={item.style.figure} view="front" surface="field" label={`Esquema de ${item.style.name}`} />
                     )}

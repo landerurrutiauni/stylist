@@ -8,6 +8,8 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/landing.css';
 import './styles/studio.css';
+// Records the path of the page load before any lazy chunk runs.
+import './lib/pageLoad.ts';
 import { App } from './App.tsx';
 
 // The site lives under /<repo>/ on GitHub Pages; BASE_URL carries that prefix.

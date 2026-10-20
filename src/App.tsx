@@ -1,18 +1,21 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, type ComponentType } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router';
 import { Landing } from './landing/Landing.tsx';
 import { NotFound } from './pages/NotFound.tsx';
 import { PrivacyPage } from './pages/PrivacyPage.tsx';
 import { SessionProvider } from './session/session.tsx';
-import { AnalysisStep } from './studio/AnalysisStep.tsx';
-import { ConsentStep } from './studio/ConsentStep.tsx';
-import { PhotosStep } from './studio/PhotosStep.tsx';
-import { QuestionStep } from './studio/QuestionStep.tsx';
-import { ComparePage } from './studio/results/ComparePage.tsx';
-import { DetailPage } from './studio/results/DetailPage.tsx';
-import { ResultsPage } from './studio/results/ResultsPage.tsx';
-import { ReviewStep } from './studio/ReviewStep.tsx';
-import { StudioLayout } from './studio/StudioLayout.tsx';
+
+type Studio = typeof import('./studio/index.ts');
+const studio = (name: keyof Studio) => lazy(() => import('./studio/index.ts').then((module) => ({ default: module[name] as ComponentType })));
+const StudioLayout = studio('StudioLayout');
+const PhotosStep = studio('PhotosStep');
+const ConsentStep = studio('ConsentStep');
+const QuestionStep = studio('QuestionStep');
+const ReviewStep = studio('ReviewStep');
+const AnalysisStep = studio('AnalysisStep');
+const ResultsPage = studio('ResultsPage');
+const DetailPage = studio('DetailPage');
+const ComparePage = studio('ComparePage');
 
 const FiguresPage = import.meta.env.DEV ? lazy(() => import('./screens/dev/FiguresPage.tsx')) : null;
 
@@ -41,7 +44,13 @@ export function App() {
   return (
     <SessionProvider>
       <DocumentTitle />
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <p className="route-loading" role="status">
+            Cargando…
+          </p>
+        }
+      >
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/privacidad" element={<PrivacyPage />} />

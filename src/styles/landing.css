@@ -299,6 +299,7 @@
   position: relative;
   display: grid;
   grid-template-columns: 5fr 7fr;
+  grid-template-rows: 1fr auto;
   min-height: 100svh;
   overflow: clip;
 }
@@ -324,7 +325,8 @@
 }
 
 /* The word holds the top-left of its own screen while the picture sits to its
-   right, so nothing ever passes over text being read. */
+   right. It sticks only inside the first row, so it stops above the caption
+   instead of sliding under it. */
 .verb-word {
   grid-column: 1;
   grid-row: 1;
@@ -346,7 +348,7 @@
 
 .verb-picture {
   grid-column: 2;
-  grid-row: 1;
+  grid-row: 1 / span 2;
   display: grid;
   place-items: center;
   padding: 10svh var(--margin);
@@ -354,11 +356,10 @@
 
 .verb-text {
   grid-column: 1;
-  grid-row: 1;
+  grid-row: 2;
   align-self: end;
-  z-index: 3;
   max-width: 36ch;
-  margin: 0 0 40px var(--margin);
+  margin: 24px 0 40px var(--margin);
   padding: 16px 18px;
   font-size: 1.125rem;
   line-height: 1.45;
@@ -400,7 +401,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  transform: translateY(-50%);
+  /* `translate`, not `transform`, so the entrance can still move the mark. */
+  translate: 0 -50%;
   font-size: var(--step-small);
   font-weight: 500;
   white-space: nowrap;
@@ -408,7 +410,7 @@
 
 .mark-left {
   flex-direction: row-reverse;
-  transform: translate(-100%, -50%);
+  translate: -100% -50%;
 }
 
 .mark-dot {
@@ -953,8 +955,7 @@
 .cta-band {
   position: relative;
   display: block;
-  min-height: 60svh;
-  padding: 32px var(--margin);
+  padding: 32px var(--margin) 24px;
   background: var(--accent);
   color: var(--accent-ink);
   text-decoration: none;
@@ -972,17 +973,15 @@
 }
 
 .cta-arrow {
-  position: absolute;
-  top: 32px;
-  right: var(--margin);
+  display: inline-block;
   width: 48px;
   height: 48px;
+  margin-top: 16px;
 }
 
 .cta-word {
-  position: absolute;
-  left: var(--margin);
-  bottom: 24px;
+  display: block;
+  margin: clamp(56px, 9vw, 160px) 0 0 -0.04em;
   font-size: clamp(96px, 26vw, 420px);
   font-weight: 500;
   line-height: 0.75;
@@ -1003,7 +1002,6 @@
 
 @media (max-width: 760px) {
   .cta-band {
-    min-height: 46svh;
     padding: 24px 16px;
   }
 
@@ -1015,12 +1013,9 @@
   .cta-arrow {
     width: 32px;
     height: 32px;
-    top: 24px;
-    right: 16px;
   }
 
   .cta-word {
-    left: 16px;
     font-size: 25vw;
   }
 }
@@ -1029,7 +1024,8 @@
 
 .landing-footer {
   position: relative;
-  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
   padding: 96px var(--margin) 0;
   background: var(--ink);
   color: var(--field);
@@ -1078,33 +1074,26 @@
 }
 
 .footer-credits {
-  position: absolute;
-  left: var(--margin);
-  right: var(--margin);
-  bottom: calc(27vw * 0.62);
+  margin-top: clamp(96px, 12vw, 200px);
   display: flex;
   justify-content: space-between;
   gap: 24px;
   font-size: var(--step-small);
 }
 
+/* The name runs off the bottom edge: the footer crops its lower part. */
 .footer-name {
-  position: absolute;
-  left: calc(var(--margin) - 0.06em);
-  bottom: 0;
-  margin: 0;
+  margin: 24px 0 -0.24em calc(-0.06em);
   font-size: 30vw;
   font-weight: 500;
   line-height: 0.8;
   letter-spacing: -0.06em;
   white-space: nowrap;
-  transform: translateY(30%);
 }
 
 @media (max-width: 760px) {
   .landing-footer {
     padding-top: 64px;
-    min-height: 92svh;
   }
 
   .footer-top {
@@ -1129,7 +1118,7 @@
   .footer-credits {
     display: grid;
     gap: 6px;
-    bottom: calc(34vw * 0.62);
+    margin-top: 72px;
     font-size: 0.8125rem;
   }
 
