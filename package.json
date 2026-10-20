@@ -10,19 +10,20 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "tsx watch server/node/dev-server.ts",
-    "build": "tsc -b && vite build && node scripts/postbuild.mjs",
+    "build": "tsc -b && vite build && node scripts/postbuild.mjs dist && node scripts/check-dist-secrets.mjs dist",
     "build:edge": "node scripts/build-edge.mjs",
     "preview": "vite preview",
-    "serve:pages": "node scripts/pages-server.mjs",
+    "serve:pages": "node scripts/pages-server.mjs --dir dist --base /stylist/ --port 4321",
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check:dist": "node scripts/check-dist-secrets.mjs",
+    "check:dist": "node scripts/check-dist-secrets.mjs dist",
     "fixtures": "node scripts/make-fixtures.mjs",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "build:e2e": "vite build --outDir dist-e2e --emptyOutDir && node scripts/postbuild.mjs dist-e2e && node scripts/check-dist-secrets.mjs dist-e2e"
   },
   "dependencies": {
     "@fontsource/hanken-grotesk": "5.3.0",

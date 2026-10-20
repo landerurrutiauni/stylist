@@ -16,3 +16,4 @@ supabase/.temp/
 .claude/skills/
 .claude/settings.local.json
 .probe/
+dist-e2e/
