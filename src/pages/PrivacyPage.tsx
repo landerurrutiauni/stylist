@@ -47,15 +47,16 @@ export function PrivacyPage() {
 
         <h2>La simulación de cómo te queda</h2>
         <p>
-          Claude no genera imágenes. Si pides ver un corte sobre tu foto, y solo tras un segundo consentimiento que nombra al servicio, tu foto
-          frontal y la descripción del corte se envían a un modelo de edición de imagen, que devuelve tu foto con el pelo cambiado. FOLIA no guarda ni
-          la foto ni la imagen generada, y la imagen se marca siempre como simulación generada por IA. El servicio depende de cómo esté configurado el
-          servidor:
+          Claude no genera imágenes. Si pides ver un corte sobre tu foto, y solo tras un segundo consentimiento que nombra al servicio, tus fotos de
+          frente y de perfil y la descripción del corte se envían a un modelo de edición de imagen, que devuelve tus fotos con el pelo cambiado. FOLIA
+          no guarda ni las fotos ni las imágenes generadas, y cada imagen se marca siempre como simulación generada por IA. El servicio depende de
+          cómo esté configurado el servidor:
         </p>
         <ul>
           <li>
-            <strong>Cloudflare Workers AI</strong> (modelo FLUX.2 [klein] de Black Forest Labs). Recibe una copia de tu foto reducida a 512 px. Según
-            su documentación, Cloudflare no conserva lo que recibe ni lo que genera una vez terminada la petición y no lo usa para entrenar modelos.
+            <strong>Cloudflare Workers AI</strong> (modelo FLUX.2 [klein] de Black Forest Labs). Recibe una copia de cada foto reducida a 512 px.
+            Según su documentación, Cloudflare no conserva lo que recibe ni lo que genera una vez terminada la petición y no lo usa para entrenar
+            modelos.
           </li>
           <li>
             <strong>Google</strong>, a través de la API de Gemini. FOLIA pide a Google que no almacene la interacción; según su documentación, Google

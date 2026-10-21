@@ -158,7 +158,11 @@ export function createHandler(deps: HandlerDeps) {
     try {
       const result = await previewRunner(upload.value, abort.signal);
       log({ event: 'preview_ok', ms: Date.now() - started });
-      return json({ type: 'preview', styleId: upload.value.styleId, mime: result.mime, data: result.data, model: result.model }, 200, cors);
+      return json(
+        { type: 'preview', styleId: upload.value.styleId, view: upload.value.view, mime: result.mime, data: result.data, model: result.model },
+        200,
+        cors,
+      );
     } catch (error) {
       const failure = error instanceof ModelError ? error : new ModelError('preview_failed', 'No se pudo generar la vista previa.', true);
       log({ event: 'preview_failed', code: failure.code, ms: Date.now() - started });

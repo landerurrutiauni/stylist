@@ -5,7 +5,7 @@ import { difficultyShort, lengthCategoryLabels } from '../../../shared/labels.ts
 import { BAND_LABELS, FACTOR_LABELS } from '../../../shared/scoring.ts';
 import { HeadSheet } from '../../figures/HeadSheet.tsx';
 import { cadenceText, differences, itemsOf, skippedFactors, type Item } from '../../lib/results.ts';
-import { useSession } from '../../session/session.tsx';
+import { previewKey, useSession } from '../../session/session.tsx';
 import { ScreenTitle } from '../../ui/ScreenTitle.tsx';
 import { NoResults } from './NoResults.tsx';
 
@@ -94,9 +94,9 @@ export function ComparePage() {
               {[a, b].map((item) => (
                 <div key={item.rec.styleId} role="columnheader">
                   <div className="compare-figure">
-                    {state.previews[item.rec.styleId] && state.photos.frontal ? (
+                    {state.previews[previewKey(item.rec.styleId, 'front')] && state.photos.frontal ? (
                       <img
-                        src={state.previews[item.rec.styleId]!.url}
+                        src={state.previews[previewKey(item.rec.styleId, 'front')]!.url}
                         alt={`Simulación con IA de tu foto con ${item.rec.variantName}`}
                         width={state.photos.frontal.width}
                         height={state.photos.frontal.height}

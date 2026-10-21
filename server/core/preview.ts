@@ -1,7 +1,6 @@
-import { getStyle } from '../../shared/catalog/styles.ts';
+import { getStyle, type FigureSpec } from '../../shared/catalog/styles.ts';
 import { TEXTURES, type Texture } from '../../shared/schema/answers.ts';
 import type { ErrorBody } from '../../shared/schema/events.ts';
-import { textureLabels } from '../../shared/labels.ts';
 import { ACCEPTED_FORMATS, detectFormat, IMAGE_LIMITS, sniffImage } from '../../shared/imageSniff.ts';
 import type { ServerConfig } from './config.ts';
 import { ModelError, type ModelImage } from './model.ts';
@@ -22,8 +21,12 @@ import { ModelError, type ModelImage } from './model.ts';
  * names the service (see docs/PRIVACY.md).
  */
 
+export type PreviewView = 'front' | 'profile';
+
 export interface PreviewInput {
   image: ModelImage;
+  /** Which photo this is: the frontal one or the profile one. */
+  view: PreviewView;
   styleId: string;
   variantName: string;
   instructions: string;
@@ -40,21 +43,55 @@ export type PreviewRunner = (input: PreviewInput, signal: AbortSignal) => Promis
 
 const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/interactions';
 
-export function previewPrompt(input: PreviewInput): string {
+const LENGTH_HINT: Record<FigureSpec['length'], string> = {
+  crown: 'Very short hair: nothing longer than a few centimetres, the ears, temples and back of the neck fully visible. Remove all longer hair.',
+  ear: 'Short hair: no hair falls below the ears. Remove all longer hair.',
+  cheek: 'The longest hair reaches the cheekbones and nothing touches the shoulders.',
+  jaw: 'The hair ends at the jawline and nothing reaches the shoulders.',
+  chin: 'The hair ends at the chin and nothing reaches the shoulders.',
+  nape: 'The hair ends at the nape of the neck and nothing reaches the shoulders.',
+  shoulder: 'The hair reaches the shoulders.',
+  collarbone: 'The hair reaches the collarbones.',
+  chest: 'Long hair reaching the chest.',
+  back: 'Very long hair reaching the back.',
+};
+
+const TEXTURE_WORDS: Record<Exclude<Texture, 'unsure'>, string> = {
+  straight: 'straight',
+  wavy: 'wavy',
+  curly: 'curly',
+  coily: 'tightly coiled',
+};
+
+/**
+ * The instruction for the image model: short, in English, the new cut first
+ * and how much hair must go, so a small model does not keep the old hair.
+ * Gemini also gets the personalised Spanish brief; FLUX does not read it well.
+ */
+export function previewPrompt(input: PreviewInput, provider: 'cloudflare' | 'google' = 'cloudflare'): string {
   const style = getStyle(input.styleId);
-  const texture = input.texture && input.texture !== 'unsure' ? textureLabels[input.texture].label.toLowerCase() : null;
-  return [
-    'Edit this photo of a real person. Change ONLY the hairstyle.',
-    `New haircut: "${input.variantName}"${style ? ` (base cut: ${style.name}; ${style.summary})` : ''}.`,
-    `Salon brief, in Spanish: ${input.instructions}`,
-    texture
-      ? `The person's natural hair texture is ${texture} (Spanish word); keep that texture.`
-      : "Keep the person's natural hair texture as seen in the photo.",
+  const look = style?.look ?? input.variantName;
+  const lines = [
+    input.view === 'profile'
+      ? `This is a side-view (profile) photo of a person. Change their hairstyle to ${look}. Show the new haircut from the side, keeping the profile pose.`
+      : `Change the hairstyle of the person in this photo to ${look}.`,
+  ];
+  if (style && !style.figure.bun) lines.push(LENGTH_HINT[style.figure.length]);
+  // Texture only matters once the hair is long enough to show it, and only when the cut does not set it.
+  const shortCut = style && (style.figure.length === 'crown' || style.figure.length === 'ear');
+  const cutSetsTexture = style && (style.figure.texture === 'curly' || style.figure.texture === 'coily' || style.figure.texture === 'braids');
+  if (input.texture && input.texture !== 'unsure' && !shortCut && !cutSetsTexture) {
+    lines.push(`The hair has the person's natural ${TEXTURE_WORDS[input.texture]} texture.`);
+  }
+  lines.push(
     "Keep the person's natural hair colour.",
-    'Keep everything else exactly as it is: the same person and identity, face shape and every facial feature, skin tone and skin texture, eyes, eyebrows, facial hair, expression, head position and angle, body, clothing, lighting, camera framing and background.',
-    'Do not beautify, slim, reshape or retouch the face. Do not add makeup, accessories, text, logos or borders.',
-    'Photorealistic, natural light, same aspect ratio as the original photo.',
-  ].join('\n');
+    'Keep the same person: the same face, facial features, skin, facial hair, expression, head pose, clothing, background and lighting. Change only the hair.',
+    'Photorealistic photograph.',
+  );
+  if (provider === 'google') {
+    lines.push(`Personalised name of the cut, in Spanish: "${input.variantName}". Salon brief, in Spanish: ${input.instructions}`);
+  }
+  return lines.join('\n');
 }
 
 interface ImagePart {
@@ -99,7 +136,7 @@ export function createGeminiRunner(config: ServerConfig): PreviewRunner {
           store: false,
           input: [
             { type: 'image', mime_type: input.image.mime, data: input.image.base64 },
-            { type: 'text', text: previewPrompt(input) },
+            { type: 'text', text: previewPrompt(input, 'google') },
           ],
           response_format: { type: 'image', mime_type: 'image/jpeg' },
         }),
@@ -172,7 +209,7 @@ export function createCloudflareRunner(config: ServerConfig): PreviewRunner {
       throw new ModelError('preview_failed', 'La foto para la simulación debe medir como máximo 512 px por lado.', false);
     }
     const form = new FormData();
-    form.append('prompt', previewPrompt(input));
+    form.append('prompt', previewPrompt(input, 'cloudflare'));
     form.append('input_image_0', new Blob([bytes], { type: input.image.mime }), 'frontal.jpg');
     const out = outputSize(size.width, size.height);
     form.append('width', String(out.width));
@@ -269,14 +306,19 @@ export async function readPreviewUpload(request: Request): Promise<{ ok: true; v
   const rawTexture = form.get('texture');
   const texture = typeof rawTexture === 'string' && (TEXTURES as readonly string[]).includes(rawTexture) ? (rawTexture as Texture) : null;
 
-  const file = form.get('frontal');
-  if (!(file instanceof Blob) || file.size === 0) return fail('invalid_image', 'Falta la foto frontal.');
-  if (file.size > IMAGE_LIMITS.maxUploadBytes) return fail('image_too_large', 'La foto frontal es demasiado grande.');
+  const rawView = form.get('view');
+  if (rawView !== null && rawView !== 'front' && rawView !== 'profile') return fail('invalid_request', 'Vista desconocida.');
+  const view: PreviewView = rawView === 'profile' ? 'profile' : 'front';
+  const label = view === 'profile' ? 'de perfil' : 'frontal';
+  // `photo` carries the picture; older clients sent the frontal one as `frontal`.
+  const file = form.get('photo') ?? (view === 'front' ? form.get('frontal') : null);
+  if (!(file instanceof Blob) || file.size === 0) return fail('invalid_image', `Falta la foto ${label}.`);
+  if (file.size > IMAGE_LIMITS.maxUploadBytes) return fail('image_too_large', `La foto ${label} es demasiado grande.`);
   const bytes = new Uint8Array(await file.arrayBuffer());
   const sniffed = sniffImage(bytes);
-  if (!sniffed) return fail('unsupported_type', 'La foto frontal no es un JPEG, PNG ni WebP válido.');
+  if (!sniffed) return fail('unsupported_type', `La foto ${label} no es un JPEG, PNG ni WebP válido.`);
   // Previews may use a reduced copy of the photo (512 px for Cloudflare).
-  if (Math.min(sniffed.width, sniffed.height) < 256) return fail('invalid_image', 'La foto frontal es demasiado pequeña.');
+  if (Math.min(sniffed.width, sniffed.height) < 256) return fail('invalid_image', `La foto ${label} es demasiado pequeña.`);
 
   let binary = '';
   for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
@@ -284,6 +326,7 @@ export async function readPreviewUpload(request: Request): Promise<{ ok: true; v
     ok: true,
     value: {
       image: { mime: sniffed.mime as ModelImage['mime'], base64: btoa(binary) },
+      view,
       styleId,
       variantName: variantName.trim(),
       instructions: instructions.trim(),

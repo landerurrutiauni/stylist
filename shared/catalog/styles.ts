@@ -44,6 +44,8 @@ export interface CatalogStyle {
   difficulty: Difficulty;
   tools: Exclude<Tool, 'none'>[];
   summary: string;
+  /** What the cut looks like, in plain English, for the image model that draws it on the person's photo. */
+  look: string;
   /** What to ask for at the salon or barbershop, in trade terms. */
   barber: string;
   /** The trade-off that comes with the cut, before any personal adjustment. */
@@ -66,6 +68,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: [],
     summary: 'La misma longitud en toda la cabeza: deja a la vista la forma del cráneo y el contorno del rostro.',
+    look: 'a buzz cut: all the hair clipped very short and even, about 9 mm all over the head, the shape of the skull visible, ears, temples and the back of the neck completely uncovered, no fringe',
     barber:
       'Máquina con peine del n.º 3 (9 mm) en toda la cabeza, o n.º 3 arriba y n.º 2 en los laterales. Contorno de nuca y patillas limpio, sin línea marcada.',
     tradeoff: 'No esconde nada: entradas, remolinos y la forma de la cabeza quedan expuestos.',
@@ -84,6 +87,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['hold_products'],
     summary: 'Laterales cortos y parte superior algo más larga en la frente, peinada con los dedos.',
+    look: 'a classic crew cut: sides and back clipped short and tapered, slightly longer hair on top (2 to 4 cm) brushed up and back at the front, ears and neck uncovered',
     barber:
       'Laterales con máquina del n.º 2 o 3, desvanecido hacia arriba. Arriba, 2–3 cm a tijera sobre peine, dejando la zona de la frente medio centímetro más larga.',
     tradeoff: 'Pide visitas frecuentes: a las cuatro semanas la transición de los laterales se pierde.',
@@ -102,6 +106,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['hold_products'],
     summary: 'Laterales degradados y parte superior con textura hacia delante, rematada en un flequillo corto.',
+    look: 'a textured crop: skin fade on the sides and back, short messy textured hair on top pushed forward into a short choppy fringe on the forehead',
     barber:
       'Degradado medio en laterales (del n.º 1 al 3). Arriba, 3–5 cm desfilados a tijera o navaja y peinados hacia delante; flequillo corto, recto o irregular.',
     tradeoff: 'El flequillo corto marca la frente; si se quiere despejarla, no es la mejor base.',
@@ -120,6 +125,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['curl_cream'],
     summary: 'El rizo se queda arriba con su volumen y solo se limpian patillas y nuca.',
+    look: 'short curly hair with a low taper fade: defined curls about 5 cm long on top, sides and back faded very short, ears uncovered',
     barber: 'Taper bajo en patillas y nuca (n.º 1–2) sin subir el degradado. Arriba, 4–6 cm cortados en seco, rizo a rizo; definir con crema.',
     tradeoff: 'El rizo encoge al secarse: hay que cortar en seco o calcular el encogimiento.',
     figure: { top: 0.42, sides: 'skin', length: 'crown', fringe: 'textured', part: 'none', texture: 'curly', layers: 'none' },
@@ -137,6 +143,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer', 'hold_products'],
     summary: 'Corte de oficina de toda la vida: raya lateral, arriba con caída y laterales ordenados.',
+    look: 'a classic short side-part haircut: neat short sides, 5 to 7 cm on top combed to one side with a clear side parting, ears uncovered, groomed',
     barber:
       'Laterales a tijera o con máquina del n.º 3–4, sin degradado marcado. Arriba, 5–7 cm con la raya en su lado natural; secar dirigiendo hacia el lado y fijar con pomada mate.',
     tradeoff: 'Sin secador y producto se aplana: la raya necesita dirección cada mañana.',
@@ -155,6 +162,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer', 'hold_products'],
     summary: 'Volumen en la frente que sube y se va hacia atrás; los laterales quedan cortos.',
+    look: 'a short quiff: short sides and back, the hair on top swept up and back at the front into a voluminous quiff, forehead uncovered',
     barber:
       'Laterales con máquina del n.º 2 y transición suave. Arriba, 6–8 cm en la frente que se acortan hacia la coronilla; secar hacia arriba y atrás con cepillo.',
     tradeoff: 'Depende del secador: sin él, el pelo cae hacia delante y pierde la forma.',
@@ -173,6 +181,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['hold_products'],
     summary: 'Muy corto y pegado a la forma de la cabeza, con algo de largo arriba para mover.',
+    look: 'a classic pixie cut: very short and close to the head at the sides and nape, ears uncovered, slightly longer on top with a short side-swept fringe',
     barber: 'Nuca y laterales cortos a tijera, siguiendo la forma de la cabeza. Arriba, 3–5 cm en capas; patilla fina alrededor de la oreja.',
     tradeoff: 'Despeja por completo el cuello y las orejas; crecer desde aquí lleva varios meses de transición.',
     figure: { top: 0.2, sides: 'close', length: 'ear', fringe: 'side', part: 'side', texture: 'straight', layers: 'light' },
@@ -190,6 +199,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer', 'hold_products'],
     summary: 'Nuca corta y un flequillo largo barrido hacia un lado que cae sobre la frente.',
+    look: 'a pixie cut with a long side-swept fringe: very short sides and nape, ears uncovered, a long fringe sweeping across the forehead to the cheekbone on one side',
     barber:
       'Nuca corta y laterales por encima de la oreja. Parte superior y flequillo de 8–12 cm barridos hacia un lado; desfilar las puntas para que no pesen.',
     tradeoff: 'El flequillo largo hay que secarlo en su dirección; con remolinos en la frente cuesta más.',
@@ -208,6 +218,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['curl_cream'],
     summary: 'Rizo corto con más altura arriba que en los lados, para que el volumen dibuje la forma.',
+    look: 'a short curly pixie: tight defined curls about 5 cm long, close at the sides and nape, more volume on top, ears uncovered',
     barber: 'Corte en seco siguiendo cada rizo: laterales y nuca de 2–4 cm, arriba 5–7 cm para que el rizo forme volumen. Sin desfilar.',
     tradeoff: 'El volumen arriba alarga visualmente el rostro; si se busca lo contrario, conviene equilibrarlo en los lados.',
     figure: { top: 0.48, sides: 'close', length: 'ear', fringe: 'textured', part: 'none', texture: 'curly', layers: 'none' },
@@ -225,6 +236,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['curl_cream'],
     summary: 'Forma redondeada y compacta, con el rizo natural y el contorno perfilado.',
+    look: 'a short rounded afro: tightly coiled natural hair about 3 cm long, even and neat all over the head, ears and neck uncovered',
     barber: 'Forma redonda con 2–4 cm arriba; degradado bajo opcional en patillas y nuca. Perfilado del contorno con tijera o máquina.',
     tradeoff: 'El perfilado del contorno se nota a las tres semanas; la forma redonda pide repasos regulares.',
     figure: { top: 0.36, sides: 'close', length: 'crown', fringe: 'none', part: 'none', texture: 'coily', layers: 'none' },
@@ -242,6 +254,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['texturizer'],
     summary: 'Laterales cortos, arriba con textura y la nuca más larga que el resto.',
+    look: 'a modern mullet: short textured top with a choppy fringe, short sides, and clearly longer layered hair at the back reaching the nape',
     barber: 'Laterales cortos o con taper; arriba textura corta. Nuca de 6–10 cm a capas, con una transición suave entre las tres zonas.',
     tradeoff: 'Es un corte con intención: en entornos formales se lee como una declaración.',
     figure: { top: 0.28, sides: 'short', length: 'nape', fringe: 'textured', part: 'none', texture: 'wavy', layers: 'heavy', napeLonger: true },
@@ -259,6 +272,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer', 'texturizer'],
     summary: 'A medio camino entre bob y pixie: largo hasta el pómulo, nuca corta y capas ligeras.',
+    look: 'a bixie cut, between a pixie and a bob: textured layers reaching the cheekbones, side parting, soft textured fringe, short nape',
     barber: 'Longitud entre la oreja y el pómulo; nuca corta y capas ligeras arriba. Flequillo desfilado o barrido.',
     tradeoff: 'Al crecer pasa rápido a bob corto; mantener la forma exige cortes cada seis semanas.',
     figure: { top: 0.3, sides: 'full', length: 'cheek', fringe: 'textured', part: 'side', texture: 'straight', layers: 'light' },
@@ -276,6 +290,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['hold_products'],
     summary: 'Arriba corto y peinado hacia delante, con un flequillo recto y corto que dibuja una línea sobre la frente; laterales degradados.',
+    look: 'a French crop: skin fade on the sides and back, short hair on top combed forward into a short straight fringe across the middle of the forehead',
     barber:
       'Degradado medio en laterales y nuca (del n.º 1 al 3). Arriba, 3–4 cm hacia delante y flequillo recortado recto a media frente. Textura con tijera de entresacar.',
     tradeoff: 'La línea del flequillo marca mucho la frente, y con un remolino delante cuesta que caiga recta.',
@@ -294,6 +309,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer', 'texturizer'],
     summary: 'Raya al medio y dos mechones que se abren desde la frente hacia las sienes; laterales cortos sin rapar.',
+    look: 'short curtain hair: short sides, longer hair on top with a centre parting and two fringe sections falling to the temples on each side, ears visible',
     barber:
       'Laterales a tijera o con máquina del n.º 3–4. Arriba, 7–9 cm delante bajando a 5 cm en la coronilla; raya al medio y la parte delantera cortada en dos cortinas que llegan a la sien.',
     tradeoff: 'Necesita secador para que la raya se abra; con un remolino en la frente la raya se desvía hacia un lado.',
@@ -312,6 +328,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['hold_products'],
     summary: 'Pixie corto y pegado a la cabeza con un flequillo recto y denso que llega a las cejas.',
+    look: 'a pixie cut with a blunt fringe: very short at the sides and nape, ears uncovered, a thick fringe cut straight across at eyebrow level',
     barber:
       'Nuca y laterales a tijera, pegados, con la oreja despejada. Arriba, 4–6 cm con capas cortas; flequillo recto y denso a la altura de las cejas, cortado en seco.',
     tradeoff: 'El flequillo recto se recorta cada 3–4 semanas o empieza a tapar los ojos.',
@@ -331,6 +348,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer', 'flat_iron'],
     summary: 'Una sola línea de corte a la altura de la mandíbula, sin capas, con peso en las puntas.',
+    look: 'a blunt bob: straight hair cut in one sharp horizontal line at the jaw, centre parting, no layers, no fringe, the neck visible below the line',
     barber:
       'Línea recta a la altura de la mandíbula, sin capas y a 0° de elevación. Raya al medio o lateral; nuca ligeramente graduada para que la línea no se abra.',
     tradeoff: 'La línea horizontal a la mandíbula subraya esa zona: es su gracia y también su riesgo.',
@@ -349,6 +367,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['blowdryer'],
     summary: 'Largo entre la clavícula y los hombros, con base recta y movimiento interior.',
+    look: 'a long bob (lob): hair reaching the collarbones, deep side parting, soft waves and light layers, no fringe',
     barber: 'Largo entre la clavícula y los hombros; base recta con capas internas muy ligeras para dar movimiento. Raya libre.',
     tradeoff: 'Al rozar los hombros las puntas se doblan hacia fuera; con pelo liso conviene cortarlo justo encima o justo debajo.',
     figure: { top: 0.22, sides: 'full', length: 'collarbone', fringe: 'none', part: 'side', texture: 'wavy', layers: 'light' },
@@ -366,6 +385,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer', 'texturizer'],
     summary: 'Capas cortas en la coronilla, medias alrededor de la cara y un flequillo abierto desde el centro.',
+    look: 'a shoulder-length shag: many choppy layers with volume at the crown, wavy texture, centre parting with curtain bangs framing the face',
     barber:
       'Capas cortas en la coronilla y medias alrededor de la cara; puntas desfiladas. Flequillo cortina que abre desde el centro y llega al pómulo.',
     tradeoff: 'Con pelo muy fino las capas le quitan cuerpo; necesita densidad para que el shag se vea lleno.',
@@ -384,6 +404,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['texturizer'],
     summary: 'Mucho volumen en la coronilla con capas muy marcadas y la nuca larga y desfilada.',
+    look: 'a wolf cut: shoulder-length shaggy hair with heavy choppy layers on top, a textured fringe, and longer wispy hair at the back of the neck',
     barber: 'Capas muy marcadas en la coronilla, nuca más larga y desfilada, laterales que se van afinando. Flequillo texturizado.',
     tradeoff: 'Se lee como un estilo de tendencia: en dos años puede parecer de una época concreta.',
     figure: { top: 0.42, sides: 'full', length: 'shoulder', fringe: 'textured', part: 'none', texture: 'wavy', layers: 'heavy', napeLonger: true },
@@ -401,6 +422,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['curl_cream', 'blowdryer'],
     summary: 'Rizo a la altura del mentón con capas redondeadas para que no tome forma de triángulo.',
+    look: 'a curly bob: defined curls cut to chin length with rounded layers, side parting, volume at the sides, a curly fringe',
     barber:
       'Corte en seco rizo a rizo a la altura del mentón o la mandíbula, con capas redondeadas para evitar la forma triangular. Secar con difusor.',
     tradeoff: 'Con el encogimiento puede quedar más corto de lo previsto: pedir que se corte en seco.',
@@ -419,6 +441,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['hold_products'],
     summary: 'Largo hasta la nuca, con capas largas que caen hacia atrás por detrás de las orejas.',
+    look: 'a medium-length flow: hair reaching the nape of the neck, combed back from the forehead and tucked behind the ears, slight natural wave',
     barber: 'Largo hasta la nuca o la parte baja de la oreja; capas largas para que caiga hacia atrás. Sin degradado; patillas a tijera.',
     tradeoff: 'Pasa por una fase incómoda al crecer, cuando el pelo tapa las orejas y aún no cae hacia atrás.',
     figure: { top: 0.3, sides: 'full', length: 'nape', fringe: 'none', part: 'none', texture: 'wavy', layers: 'light', swept: 'back' },
@@ -436,6 +459,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['blowdryer', 'hold_products'],
     summary: 'Arriba de 10 a 15 cm con raya central y los mechones delanteros abiertos hacia los lados.',
+    look: 'a medium curtain haircut: centre parting, straight hair falling to the cheekbones on both sides of the face like curtains, short neat back',
     barber:
       'Arriba, 10–15 cm con raya central; laterales cubriendo parte de la oreja o con taper suave. Mechones frontales que enmarquen a los lados.',
     tradeoff: 'La raya central muestra cualquier asimetría del nacimiento del pelo; con remolino en la frente cuesta fijarla.',
@@ -454,6 +478,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['curl_cream'],
     summary: 'Forma redonda y uniforme, con la longitud repartida alrededor de toda la cabeza.',
+    look: 'a large rounded afro: voluminous natural coily hair shaped into an even round silhouette around the head, reaching the jawline',
     barber: 'Forma redonda cortada en seco con el pelo estirado al natural; longitud uniforme alrededor y perfilado del contorno.',
     tradeoff: 'Para que la forma sea redonda hay que hidratar y esponjar a diario; aplastado al dormir pierde la silueta.',
     figure: { top: 0.85, sides: 'wide', length: 'jaw', fringe: 'none', part: 'none', texture: 'coily', layers: 'none' },
@@ -471,6 +496,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer', 'hold_products'],
     summary: 'Todo hacia atrás desde la frente, con brillo y los laterales recogidos.',
+    look: 'slicked-back hair: medium-length hair combed straight back from the forehead with a sleek finish, close to the head, reaching the nape',
     barber: 'Arriba, 8–12 cm; laterales más cortos a tijera o con máquina del n.º 3–4. Peinar hacia atrás con pomada de brillo o crema.',
     tradeoff: 'Despeja la frente por completo y deja las entradas a la vista.',
     figure: { top: 0.3, sides: 'close', length: 'nape', fringe: 'none', part: 'none', texture: 'straight', layers: 'none', swept: 'back' },
@@ -488,6 +514,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['flat_iron', 'blowdryer'],
     summary: 'Un lado a la mandíbula y el otro más largo, con la nuca graduada y raya muy lateral.',
+    look: 'an asymmetric bob: sleek straight bob, longer on one side reaching below the chin and shorter on the other, deep side parting, side-swept fringe',
     barber: 'Un lado a la mandíbula y el otro hasta el mentón o por debajo; nuca graduada y raya muy lateral.',
     tradeoff: 'La asimetría solo funciona con el pelo liso y pulido: con humedad se desdibuja.',
     figure: { top: 0.22, sides: 'full', length: 'chin', fringe: 'side', part: 'side', texture: 'straight', layers: 'none', asymmetric: true },
@@ -505,6 +532,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer'],
     summary: 'Bob corto a la altura del mentón con un flequillo recto a las cejas: la forma más gráfica de enmarcar la cara.',
+    look: 'a French bob: straight bob cut at chin length with a blunt straight fringe at eyebrow level, no parting, slightly rounded towards the face',
     barber:
       'Bob a una sola longitud a la altura del mentón, con la línea ligeramente redondeada hacia delante. Flequillo recto y denso a las cejas. Puntas sin desfilar.',
     tradeoff: 'Es un corte muy definido: el flequillo y la línea del bob se notan en cuanto crecen 2 cm.',
@@ -523,6 +551,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer'],
     summary: 'Bob a la mandíbula con raya al medio y un flequillo cortina que se abre hacia los pómulos.',
+    look: 'a jaw-length bob with curtain bangs: centre parting, a fringe that opens from the middle and frames the cheekbones, straight hair',
     barber:
       'Bob a la altura de la mandíbula con capas internas muy ligeras. Raya al medio y flequillo cortina: más corto en el centro, a la altura de la nariz, y bajando hacia los pómulos.',
     tradeoff: 'El flequillo cortina pide un pase de secador con cepillo redondo cada mañana para abrirse.',
@@ -541,6 +570,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['texturizer', 'blowdryer'],
     summary: 'Melena a los hombros con muchas capas y un flequillo recto y espeso: aire setentero con un borde gráfico.',
+    look: 'a shoulder-length shag with a thick blunt fringe: heavy choppy layers, wavy texture, straight fringe at eyebrow level',
     barber:
       'Largo a los hombros, capas cortas en la coronilla y desfilado en todo el contorno. Flequillo recto y espeso a las cejas, abierto en los extremos para unirlo a las capas.',
     tradeoff: 'Suma dos mantenimientos: el flequillo cada 3–4 semanas y las capas cada 8.',
@@ -559,6 +589,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['blowdryer', 'hold_products'],
     summary: 'Pelo hasta la mandíbula con raya lateral y el flequillo largo cayendo hacia un lado, al estilo de los años 90.',
+    look: 'medium-length hair with a side parting: straight hair reaching the jaw, a long fringe swept to one side over the forehead, light layers, 1990s style',
     barber:
       'Laterales a tijera tapando media oreja y nuca a la altura del cuello de la camisa. Arriba, 10–12 cm con capas largas; raya al lado en su caída natural y flequillo largo hasta el pómulo.',
     tradeoff: 'El flequillo largo cae sobre la cara: hay que llevarlo detrás de la oreja o fijarlo.',
@@ -577,6 +608,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['curl_cream'],
     summary: 'Rizos hasta el pómulo con el volumen arriba y los laterales contenidos para que la forma no se ensanche.',
+    look: 'medium-length curly hair: defined curls reaching the cheekbones, more volume on top, shorter neat sides, no fade',
     barber:
       'Corte en seco, rizo a rizo. Arriba, 8–10 cm; laterales y nuca 2–3 cm más cortos para que el volumen quede arriba, sin degradado marcado. Definir con crema.',
     tradeoff: 'Con humedad gana volumen; necesita crema y no tocarlo mientras se seca.',
@@ -596,6 +628,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['blowdryer'],
     summary: 'Largo por debajo de los hombros con capas que empiezan a la altura del mentón.',
+    look: 'long layered hair reaching the chest: soft waves, side parting, face-framing layers, no fringe',
     barber: 'Base por debajo de los hombros; capas largas desde el mentón hacia abajo y puntas saneadas 1–2 cm.',
     tradeoff: 'Con pelo fino, demasiadas capas dejan las puntas transparentes: pedir capas solo delante.',
     figure: { top: 0.24, sides: 'full', length: 'chest', fringe: 'none', part: 'side', texture: 'wavy', layers: 'light' },
@@ -613,6 +646,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['flat_iron'],
     summary: 'Una sola línea recta sin capas, a la altura del pecho, con raya al medio.',
+    look: 'long straight hair cut to one length at chest level: centre parting, sleek blunt ends, no layers, no fringe',
     barber: 'Línea recta sin capas a la altura del pecho o media espalda; raya al medio y puntas pulidas.',
     tradeoff: 'Sin capas, el peso aplana la raíz: con pelo fino puede verse lacio.',
     figure: { top: 0.18, sides: 'full', length: 'chest', fringe: 'none', part: 'center', texture: 'straight', layers: 'none' },
@@ -630,6 +664,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'high',
     tools: ['blowdryer'],
     summary: 'Capas cortas alrededor de la cara y capas largas detrás que conservan el largo.',
+    look: 'a butterfly cut: long voluminous hair to the chest with short face-framing layers starting at the cheekbones, curtain bangs, bouncy waves',
     barber:
       'Capas cortas alrededor de la cara desde el mentón y capas largas detrás que mantienen la longitud. Secado con cepillo redondo hacia fuera.',
     tradeoff: 'Su efecto depende del secado con cepillo redondo: al aire queda como un largo con capas sin más.',
@@ -648,6 +683,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer'],
     summary: 'Largo con capas suaves y un flequillo que se abre desde el centro y cae hasta el pómulo.',
+    look: 'long straight hair to the chest with curtain bangs: centre parting, a fringe opening from the middle and framing the face',
     barber: 'Largo con capas suaves; flequillo cortina que abre desde el centro y cae hasta el pómulo. Retocar el flequillo cada 3–4 semanas.',
     tradeoff: 'El flequillo pide retoques entre cortes y secado diario en su dirección.',
     figure: { top: 0.24, sides: 'full', length: 'chest', fringe: 'curtain', part: 'center', texture: 'straight', layers: 'light' },
@@ -665,6 +701,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['curl_cream', 'blowdryer'],
     summary: 'Rizo largo con capas que reparten el volumen de arriba abajo.',
+    look: 'long curly hair to the chest with layers: defined curls, volume spread from top to bottom, side parting',
     barber: 'Corte en seco rizo a rizo, con capas para repartir el volumen y evitar la forma triangular. Definición con crema y difusor.',
     tradeoff: 'El día de lavado lleva tiempo: definir y secar con difusor puede pasar de 30 minutos.',
     figure: { top: 0.44, sides: 'wide', length: 'chest', fringe: 'textured', part: 'side', texture: 'curly', layers: 'light' },
@@ -682,6 +719,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['texturizer'],
     summary: 'Melena hasta los hombros, de una sola longitud o con capas largas, con raya natural.',
+    look: 'shoulder-length hair with a centre parting: wavy hair falling evenly to the shoulders on both sides of the face, no fringe',
     barber: 'Largo hasta los hombros en una sola longitud o con capas largas; raya al medio o natural; puntas saneadas.',
     tradeoff: 'Llegar aquí desde corto lleva más de un año; en el camino hay fases poco favorecedoras.',
     figure: { top: 0.24, sides: 'full', length: 'shoulder', fringe: 'none', part: 'center', texture: 'wavy', layers: 'light' },
@@ -699,6 +737,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['texturizer'],
     summary: 'Capas muy marcadas arriba y puntas desfiladas en todo el contorno, con flequillo despeinado.',
+    look: 'a long shag: hair to the chest with heavy choppy layers, lots of volume at the crown, wavy texture, a messy textured fringe',
     barber: 'Capas muy marcadas en la parte superior y puntas desfiladas en todo el contorno; flequillo despeinado opcional.',
     tradeoff: 'El desfilado abre las puntas: con pelo muy fino el contorno se queda escaso.',
     figure: { top: 0.38, sides: 'wide', length: 'chest', fringe: 'textured', part: 'center', texture: 'wavy', layers: 'heavy' },
@@ -716,6 +755,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: [],
     summary: 'Pelo largo hasta la nuca o los hombros que se recoge en un moño en la coronilla; suelto queda como una melena.',
+    look: 'long hair tied up in a bun: all the hair pulled back from the forehead and the sides and gathered into a round bun on top of the head, no loose hair falling',
     barber:
       'Dejar crecer arriba hasta 15–20 cm, todo a una longitud que permita recogerlo. Laterales y nuca a tijera, saneados, sin rapar (o con undercut si se va a llevar siempre recogido).',
     tradeoff: 'Recogerlo siempre en el mismo punto tira de la raíz: conviene cambiar la altura del moño.',
@@ -744,6 +784,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['hold_products'],
     summary: 'Melena hasta la clavícula peinada hacia atrás, con la frente despejada y las puntas cayendo detrás de las orejas.',
+    look: 'long hair swept back: wavy hair reaching the collarbones, combed back from the forehead, tucked behind the ears, falling behind the shoulders',
     barber:
       'Largo a la clavícula con capas largas para que no pese. Sin flequillo: la parte delantera, a la altura de la barbilla, para poder llevarla hacia atrás. Puntas saneadas.',
     tradeoff: 'Necesita algo de producto para que no caiga hacia la cara a media mañana.',
@@ -762,6 +803,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['curl_cream'],
     summary: 'Rizos hasta los hombros con forma redondeada y raya natural; el volumen se reparte en vez de acumularse abajo.',
+    look: 'shoulder-length curly hair: defined curls with a rounded shape, centre parting, volume spread evenly around the head',
     barber:
       'Corte en seco, rizo a rizo, con capas largas para que el volumen no se quede en las puntas. Largo a los hombros. Definir con crema y difusor.',
     tradeoff: 'Los días de lavado llevan tiempo y durante el crecimiento hay fases con forma triangular.',
@@ -780,6 +822,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'low',
     tools: ['texturizer'],
     summary: 'Melena hasta la clavícula con capas desfiladas, ondas sueltas y raya al lado, pensada para secar al aire.',
+    look: 'long layered surfer hair: wavy hair reaching the collarbones with choppy layers, loose and slightly messy, side parting, tucked behind one ear',
     barber:
       'Largo a la clavícula con capas desfiladas a navaja o tijera de entresacar, sobre todo delante para que caiga detrás de la oreja. Sin línea marcada en las puntas.',
     tradeoff: 'Con pelo muy liso las capas se notan menos y puede quedar lacio sin un spray de sal.',
@@ -798,6 +841,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['curling_iron', 'blowdryer'],
     summary: 'Largo hasta el pecho con la raya muy al lado: la parte larga cae sobre un lado de la cara con ondas abiertas.',
+    look: 'long hair with a deep side parting and open waves: hair to the chest, the long side falling over one side of the face',
     barber:
       'Largo al pecho con capas largas desde la barbilla hacia abajo. Raya lateral profunda y capas delanteras a la altura del mentón para que la onda abra la cara.',
     tradeoff: 'La onda pide tenacilla o plancha; sin ella queda como un largo liso con raya al lado.',
@@ -816,6 +860,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'medium',
     tools: ['blowdryer', 'flat_iron'],
     summary: 'Largo liso hasta el pecho con un flequillo recto y denso a la altura de las cejas.',
+    look: 'long straight hair to the chest with a thick blunt fringe cut straight across at eyebrow level',
     barber: 'Largo al pecho a una sola longitud o con capas muy suaves. Flequillo recto y denso a la altura de las cejas, cortado en seco.',
     tradeoff: 'El flequillo recto se recorta cada 3–4 semanas y se engrasa antes que el resto del pelo.',
     figure: { top: 0.2, sides: 'full', length: 'chest', fringe: 'blunt', part: 'none', texture: 'straight', layers: 'none' },
@@ -833,6 +878,7 @@ export const CATALOG: CatalogStyle[] = [
     difficulty: 'high',
     tools: [],
     summary: 'Peinado protector de trenzas por secciones cuadradas, con el largo que se elija.',
+    look: 'box braids: the hair in many neat individual braids with square sections, long braids reaching the chest, centre parting',
     barber: 'Servicio de trenzado con extensiones: secciones cuadradas medianas y largo a elección. Rehacer cada 6–8 semanas.',
     tradeoff: 'Es un servicio de varias horas con especialista; el peso de trenzas muy largas tira de la raíz.',
     figure: { top: 0.2, sides: 'full', length: 'chest', fringe: 'none', part: 'center', texture: 'braids', layers: 'none' },

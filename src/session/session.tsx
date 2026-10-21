@@ -5,7 +5,14 @@ import type { AnalysisEnvelope } from '../../shared/schema/analysis.ts';
 import { releasePhoto, type ProcessedPhoto } from '../images/process.ts';
 import type { PhotoKind } from '../images/quality.ts';
 
-/** An AI-generated preview of the frontal photo with one cut. */
+export type PreviewView = 'front' | 'profile';
+
+/** Previews are stored per cut and per photo: "lob:front", "lob:profile". */
+export const previewKey = (styleId: string, view: PreviewView) => `${styleId}:${view}`;
+
+const VIEW_OF_PHOTO: Record<PhotoKind, PreviewView> = { frontal: 'front', profile: 'profile' };
+
+/** An AI-generated preview of one photo with one cut. */
 export interface Preview {
   url: string;
   blob: Blob;
@@ -72,11 +79,11 @@ type Action =
 function reducer(state: SessionState, action: Action): SessionState {
   switch (action.type) {
     case 'photo':
-      // Previews were made from the old frontal photo: drop them with it.
+      // Previews made from the replaced photo go with it.
       return {
         ...state,
         photos: { ...state.photos, [action.kind]: action.photo },
-        previews: action.kind === 'frontal' ? {} : state.previews,
+        previews: Object.fromEntries(Object.entries(state.previews).filter(([key]) => !key.endsWith(`:${VIEW_OF_PHOTO[action.kind]}`))),
       };
     case 'preview': {
       const previews = { ...state.previews };
@@ -152,8 +159,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     previewsRef.current = state.previews;
   }, [state.photos, state.previews]);
 
-  const releasePreviews = useCallback(() => {
-    Object.values(previewsRef.current).forEach((preview) => URL.revokeObjectURL(preview.url));
+  const releasePreviews = useCallback((view?: PreviewView) => {
+    Object.entries(previewsRef.current)
+      .filter(([key]) => !view || key.endsWith(`:${view}`))
+      .forEach(([, preview]) => URL.revokeObjectURL(preview.url));
   }, []);
 
   // Free every object URL when the page goes away.
@@ -170,7 +179,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const setPhoto = useCallback(
     (kind: PhotoKind, photo: ProcessedPhoto | null) => {
       releasePhoto(photosRef.current[kind]);
-      if (kind === 'frontal') releasePreviews();
+      releasePreviews(VIEW_OF_PHOTO[kind]);
       dispatch({ type: 'photo', kind, photo });
     },
     [releasePreviews],

@@ -38,10 +38,10 @@ productos comerciales, incluida la API, no se usan para entrenar modelos por def
 
 ### Simulación del corte (opcional)
 
-Solo si la persona pide ver un corte sobre su foto y acepta un segundo consentimiento que nombra al servicio, se envían la foto frontal y
+Solo si la persona pide ver un corte sobre su foto y acepta un segundo consentimiento que nombra al servicio, se envían la foto de frente, la de perfil y
 la descripción del corte a uno de estos servicios, según la configuración del servidor:
 
-- **Cloudflare Workers AI** (por defecto, gratuito), con el modelo FLUX.2 [klein] de Black Forest Labs. El navegador envía una copia de la
+- **Cloudflare Workers AI** (por defecto, gratuito), con el modelo FLUX.2 [klein] de Black Forest Labs. El navegador envía una copia de cada
   foto reducida a 512 px. Según la [página de uso de datos de Workers AI](https://developers.cloudflare.com/workers-ai/platform/data-usage/),
   en las peticiones de inferencia normales Cloudflare no conserva las entradas ni las salidas una vez entregada la respuesta, no las usa para
   entrenar modelos y no las pone a disposición de otros clientes, salvo las excepciones legales y de seguridad que describe.

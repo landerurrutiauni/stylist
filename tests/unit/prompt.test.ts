@@ -38,19 +38,41 @@ describe('analysis prompt', () => {
 describe('hairstyle preview', () => {
   const input = {
     image: { mime: 'image/jpeg' as const, base64: Buffer.from(fakeJpeg(1200, 1500)).toString('base64') },
+    view: 'front' as const,
     styleId: 'lob',
     variantName: 'Lob recto a la clavícula',
     instructions: 'Largo a la clavícula, línea recta.',
     texture: 'curly' as const,
   };
 
-  it('asks to change only the hair and keep the person as they are', () => {
+  it('describes the new cut first, in plain English, and keeps the person as they are', () => {
     const prompt = previewPrompt(input);
-    expect(prompt).toContain('Change ONLY the hairstyle');
-    expect(prompt).toMatch(/same person and identity/);
-    expect(prompt).toMatch(/Do not beautify/);
-    expect(prompt).toContain('Lob recto a la clavícula');
-    expect(prompt).toContain('rizado');
+    expect(prompt.split('\n')[0]).toBe(
+      'Change the hairstyle of the person in this photo to a long bob (lob): hair reaching the collarbones, deep side parting, soft waves and light layers, no fringe.',
+    );
+    expect(prompt).toContain('The hair reaches the collarbones.');
+    expect(prompt).toContain("The hair has the person's natural curly texture.");
+    expect(prompt).toContain('Keep the same person');
+    // The small FLUX model gets no Spanish jargon; Gemini gets the brief as extra detail.
+    expect(prompt).not.toContain('Lob recto a la clavícula');
+    expect(previewPrompt(input, 'google')).toContain('Salon brief, in Spanish: Largo a la clavícula, línea recta.');
+  });
+
+  it('makes drastic changes explicit: a buzz cut removes the long hair and ignores texture', () => {
+    const prompt = previewPrompt({ ...input, styleId: 'buzz-cut', variantName: 'Rapado al 3', texture: 'wavy' });
+    expect(prompt).toContain('a buzz cut: all the hair clipped very short and even');
+    expect(prompt).toContain('Remove all longer hair.');
+    expect(prompt).not.toContain('texture');
+  });
+
+  it('asks for the side view when editing the profile photo', () => {
+    const prompt = previewPrompt({ ...input, view: 'profile', styleId: 'man-bun' });
+    expect(prompt).toMatch(/^This is a side-view \(profile\) photo of a person\. Change their hairstyle to long hair tied up in a bun/);
+    expect(prompt).toContain('keeping the profile pose');
+  });
+
+  it('has a visual description for every cut in the catalogue', () => {
+    for (const style of CATALOG) expect(style.look.length, style.id).toBeGreaterThan(40);
   });
 
   it('finds images in Interactions and generateContent responses', () => {
@@ -147,7 +169,14 @@ describe('rate limiter', () => {
 describe('free hairstyle preview with Cloudflare Workers AI', () => {
   const CF = { CLOUDFLARE_ACCOUNT_ID: 'acc123', CLOUDFLARE_API_TOKEN: 'cf-token' };
   const small = { mime: 'image/jpeg' as const, base64: Buffer.from(fakeJpeg(410, 512)).toString('base64') };
-  const input = { image: small, styleId: 'man-bun', variantName: 'Moño alto', instructions: 'Recoger en la coronilla.', texture: 'wavy' as const };
+  const input = {
+    image: small,
+    view: 'front' as const,
+    styleId: 'man-bun',
+    variantName: 'Moño alto',
+    instructions: 'Recoger en la coronilla.',
+    texture: 'wavy' as const,
+  };
 
   it('prefers Cloudflare, can be forced to Google and is off without credentials', () => {
     expect(readConfig(CF).imageProvider).toBe('cloudflare');
@@ -184,7 +213,7 @@ describe('free hairstyle preview with Cloudflare Workers AI', () => {
     expect(url).toBe('https://api.cloudflare.com/client/v4/accounts/acc123/ai/run/@cf/black-forest-labs/flux-2-klein-4b');
     expect(new Headers(init.headers).get('authorization')).toBe('Bearer cf-token');
     const form = init.body as FormData;
-    expect(form.get('prompt')).toContain('Change ONLY the hairstyle');
+    expect(form.get('prompt')).toContain('Change the hairstyle of the person in this photo to long hair tied up in a bun');
     expect(form.get('input_image_0')).toBeInstanceOf(Blob);
     expect([form.get('width'), form.get('height')]).toEqual(['608', '768']);
   });

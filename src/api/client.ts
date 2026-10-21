@@ -149,7 +149,9 @@ export async function analyze(input: AnalyzeInput, hooks: AnalyzeHooks, signal: 
 }
 
 export interface PreviewInput {
-  frontal: Blob;
+  /** The photo to edit: the frontal one or the profile one. */
+  photo: Blob;
+  view: 'front' | 'profile';
   styleId: string;
   variantName: string;
   instructions: string;
@@ -161,11 +163,12 @@ export interface PreviewImage {
   model: string;
 }
 
-/** Asks the server for an AI-edited version of the frontal photo with this cut. */
+/** Asks the server for an AI-edited version of one photo (frontal or profile) with this cut. */
 export async function requestPreview(input: PreviewInput, signal: AbortSignal): Promise<PreviewImage> {
   if (!apiConfigured) throw new ApiError('not_configured', 'Esta publicación no tiene configurado el servidor.', false);
   const form = new FormData();
-  form.append('frontal', input.frontal, 'frontal.jpg');
+  form.append('photo', input.photo, input.view === 'profile' ? 'perfil.jpg' : 'frontal.jpg');
+  form.append('view', input.view);
   form.append('styleId', input.styleId);
   form.append('variantName', input.variantName);
   form.append('instructions', input.instructions);

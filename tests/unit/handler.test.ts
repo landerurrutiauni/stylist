@@ -240,11 +240,21 @@ describe('preview requests', () => {
     const spy = vi.fn(runner);
     const response = await handler({ previewRunner: spy })(post('/preview', previewForm()));
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ type: 'preview', styleId: 'lob', mime: 'image/jpeg', data: 'AAAA', model: 'image-test' });
+    expect(await response.json()).toEqual({ type: 'preview', styleId: 'lob', view: 'front', mime: 'image/jpeg', data: 'AAAA', model: 'image-test' });
     expect(spy.mock.calls[0]![0]).toMatchObject({ styleId: 'lob', texture: 'wavy' });
   });
 
+  it('edits the profile photo when asked for the side view', async () => {
+    const spy = vi.fn(runner);
+    const form = previewForm({ frontal: null, photo: new Blob([fakeJpeg(410, 512)], { type: 'image/jpeg' }), view: 'profile' });
+    const response = await handler({ previewRunner: spy })(post('/preview', form));
+    expect((await response.json()).view).toBe('profile');
+    expect(spy.mock.calls[0]![0]).toMatchObject({ view: 'profile', styleId: 'lob' });
+  });
+
   it.each([
+    ['for an unknown view', { view: 'back' }, 'invalid_request'],
+    ['for the profile view without its photo', { view: 'profile' }, 'invalid_image'],
     ['without consent', { consent: null }, 'consent_required'],
     ['for an unknown cut', { styleId: 'nope' }, 'invalid_request'],
     ['without a photo', { frontal: null }, 'invalid_image'],

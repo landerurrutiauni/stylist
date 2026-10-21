@@ -42,7 +42,7 @@ const FAQ = [
   },
   {
     q: '¿Quién ve las imágenes?',
-    a: 'Ninguna persona de FOLIA. Las procesa el modelo Claude de Anthropic durante el análisis. Si pides una simulación, tu foto frontal va también al servicio de imágenes, que el aviso nombra antes de enviar nada.',
+    a: 'Ninguna persona de FOLIA. Las procesa el modelo Claude de Anthropic durante el análisis. Si pides una simulación, tus fotos van también al servicio de imágenes, que el aviso nombra antes de enviar nada.',
   },
   {
     q: '¿Qué significa la compatibilidad?',
@@ -50,7 +50,7 @@ const FAQ = [
   },
   {
     q: '¿Puedo ver cómo me quedaría?',
-    a: 'Sí, si el servidor tiene activada la simulación: con tu permiso, un modelo de imagen edita tu foto frontal cambiando solo el pelo. Es una aproximación, marcada como generada por IA.',
+    a: 'Sí, si el servidor tiene activada la simulación: con tu permiso, un modelo de imagen edita tus fotos de frente y de perfil cambiando solo el pelo. Es una aproximación, marcada como generada por IA.',
   },
   {
     q: '¿Necesito saber mi tipo de rizo?',

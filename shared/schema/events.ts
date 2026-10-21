@@ -73,6 +73,7 @@ export const healthSchema = z.object({
 export const previewResponseSchema = z.object({
   type: z.literal('preview'),
   styleId: z.string(),
+  view: z.enum(['front', 'profile']).default('front'),
   mime: z.enum(['image/jpeg', 'image/png', 'image/webp']),
   data: z.string().min(100),
   model: z.string(),

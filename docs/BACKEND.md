@@ -52,9 +52,13 @@ o, si algo falla durante el análisis, `{"type":"error","code","message","retrya
 
 ### `POST /preview`
 
-`multipart/form-data` con `frontal`, `styleId` (del catálogo), `variantName`, `instructions`, `texture` y `consent=accepted`. Devuelve
-`{"type":"preview","styleId","mime","data"(base64),"model"}`. Solo se envía la foto frontal, con el lado largo a como mucho
-`previewMaxSide` píxeles (lo indica `/health`).
+`multipart/form-data` con `photo`, `view` (`front` o `profile`), `styleId` (del catálogo), `variantName`, `instructions`, `texture` y
+`consent=accepted`. Devuelve `{"type":"preview","styleId","view","mime","data"(base64),"model"}`. La web pide las dos vistas de cada corte, con
+cada foto reducida a `previewMaxSide` píxeles en su lado largo (lo indica `/health`). Por compatibilidad, `frontal` sigue valiendo como `photo`
+para la vista de frente.
+
+La instrucción al modelo de imagen está en inglés y empieza por una descripción visual del corte (`look`, una por corte en el catálogo) y por
+cuánto pelo debe quedar (por ejemplo, que en un rapado no quede pelo largo). La textura solo se menciona en cortes con largo suficiente.
 
 El servicio de imágenes se elige así:
 

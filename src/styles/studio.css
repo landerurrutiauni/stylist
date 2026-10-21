@@ -1459,25 +1459,34 @@
   gap: 10px;
 }
 
-.preview-pair {
+.preview-grid {
+  display: grid;
+  gap: 8px;
+}
+
+/* In a card: the two simulations side by side. */
+.preview-grid-compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 440px;
+}
+
+/* On the detail sheet: one row per view, the original beside the simulation. */
+.preview-grid-full {
+  gap: 16px;
+  max-width: 720px;
+}
+
+.preview-view {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 8px;
 }
 
-.preview-full .preview-pair {
-  max-width: 720px;
-}
-
-.preview-pair img {
+.preview-grid img {
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
   background: var(--paper-step);
-}
-
-.preview-compact .preview-pair img {
-  max-width: 220px;
 }
 
 .preview-figure {
