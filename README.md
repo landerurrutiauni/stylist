@@ -10,14 +10,14 @@ servidor lo tiene activado, también genera una simulación de cada corte sobre 
 
 ### Estado del despliegue (21 de octubre de 2026)
 
-| Pieza                                        | Estado                                                                                                       |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Compilación y pruebas en GitHub Actions      | ✅ lint, tipos, formato, 95 pruebas unitarias y 48 E2E en verde                                              |
-| Web en GitHub Pages                          | ⏳ compilada y lista; falta activar **Settings › Pages › Source: GitHub Actions** y volver a lanzar el flujo |
-| API en Supabase (`folia-analyze`, versión 1) | ✅ desplegada y respondiendo en `/health`                                                                    |
-| Análisis real con Claude                     | ⏳ falta el secreto `ANTHROPIC_API_KEY` en Supabase (hasta entonces, modo demostración)                      |
-| Simulación con Gemini                        | ⏳ falta el secreto `GEMINI_API_KEY` (opcional)                                                              |
-| Límite de uso compartido                     | ⏳ falta aplicar la migración `supabase/migrations/…_folia_rate_limit.sql`; mientras, cuenta en memoria      |
+| Pieza                                        | Estado                                                                                                              |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Compilación y pruebas en GitHub Actions      | ✅ lint, tipos, formato, 95 pruebas unitarias y 48 E2E en verde                                                     |
+| Web en GitHub Pages                          | ✅ publicada en <https://landerurrutiauni.github.io/stylist/>; cada push a la rama por defecto la vuelve a publicar |
+| API en Supabase (`folia-analyze`, versión 1) | ✅ desplegada y respondiendo en `/health`                                                                           |
+| Análisis real con Claude                     | ⏳ falta el secreto `ANTHROPIC_API_KEY` en Supabase (hasta entonces, modo demostración)                             |
+| Simulación con Gemini                        | ⏳ falta el secreto `GEMINI_API_KEY` (opcional)                                                                     |
+| Límite de uso compartido                     | ⏳ falta aplicar la migración `supabase/migrations/…_folia_rate_limit.sql`; mientras, cuenta en memoria             |
 
 ## Cómo funciona
 

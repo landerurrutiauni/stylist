@@ -46,7 +46,7 @@ const FAQ = [
   },
   {
     q: '¿Qué significa la compatibilidad?',
-    a: 'Una cifra orientativa de 0 a 100 que resume cinco factores: rasgos visibles, tipo de pelo, gustos, rutina y objetivos. Cada uno lleva su motivo. No mide lo guapo que eres.',
+    a: 'Una cifra orientativa de 0 a 100 que resume cinco factores: rasgos visibles, tipo de pelo, gustos, rutina y objetivos. Cada uno lleva su motivo. No mide tu atractivo.',
   },
   {
     q: '¿Puedo ver cómo me quedaría?',
