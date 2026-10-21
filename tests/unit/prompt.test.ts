@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readConfig } from '../../server/core/config.ts';
-import { createGeminiRunner, findImage, previewPrompt } from '../../server/core/preview.ts';
+import { createCloudflareRunner, createGeminiRunner, findImage, outputSize, previewPrompt } from '../../server/core/preview.ts';
+import { createHandler } from '../../server/core/handler.ts';
 import { describeAnswers, SYSTEM_PROMPT } from '../../server/core/prompt.ts';
 import { MemoryRateLimiter, SupabaseRateLimiter, clientAddress, hashKey } from '../../server/core/rateLimit.ts';
 import { CATALOG } from '../../shared/catalog/styles.ts';
-import { ANSWERS, fakeJpeg } from './helpers.ts';
+import { ANSWERS, fakeJpeg, fakePng } from './helpers.ts';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -140,5 +141,82 @@ describe('rate limiter', () => {
     expect(hashed).toMatch(/^[0-9a-f]{32}$/);
     expect(hashed).not.toContain('203');
     expect(await hashKey('203.0.113.9', 'other')).not.toBe(hashed);
+  });
+});
+
+describe('free hairstyle preview with Cloudflare Workers AI', () => {
+  const CF = { CLOUDFLARE_ACCOUNT_ID: 'acc123', CLOUDFLARE_API_TOKEN: 'cf-token' };
+  const small = { mime: 'image/jpeg' as const, base64: Buffer.from(fakeJpeg(410, 512)).toString('base64') };
+  const input = { image: small, styleId: 'man-bun', variantName: 'Moño alto', instructions: 'Recoger en la coronilla.', texture: 'wavy' as const };
+
+  it('prefers Cloudflare, can be forced to Google and is off without credentials', () => {
+    expect(readConfig(CF).imageProvider).toBe('cloudflare');
+    expect(readConfig({ ...CF, GEMINI_API_KEY: 'g' }).imageProvider).toBe('cloudflare');
+    expect(readConfig({ ...CF, GEMINI_API_KEY: 'g', IMAGE_PROVIDER: 'google' }).imageProvider).toBe('google');
+    expect(readConfig({ GEMINI_API_KEY: 'g' }).imageProvider).toBe('google');
+    expect(readConfig({ CLOUDFLARE_ACCOUNT_ID: 'only-account' }).imageProvider).toBeNull();
+  });
+
+  it('tells the browser which service edits the photo and how big to send it', async () => {
+    const handle = createHandler({ env: { ...CF, ALLOWED_ORIGINS: 'https://app.test' } });
+    const health = await (await handle(new Request('https://api.test/health'))).json();
+    expect(health).toMatchObject({
+      preview: 'available',
+      previewProvider: 'cloudflare',
+      previewModel: '@cf/black-forest-labs/flux-2-klein-4b',
+      previewMaxSide: 512,
+    });
+    expect(JSON.stringify(health)).not.toContain('cf-token');
+  });
+
+  it('keeps the photo proportions in the output size', () => {
+    expect(outputSize(410, 512)).toEqual({ width: 608, height: 768 });
+    expect(outputSize(512, 512)).toEqual({ width: 768, height: 768 });
+  });
+
+  it('sends the photo and prompt as multipart and reads the image back', async () => {
+    const png = Buffer.from(fakePng(608, 768)).toString('base64');
+    const fetch = vi.fn(async (_url: string, _init: RequestInit) => Response.json({ success: true, result: { image: png } }));
+    vi.stubGlobal('fetch', fetch);
+    const result = await createCloudflareRunner(readConfig(CF))(input, new AbortController().signal);
+    expect(result).toEqual({ mime: 'image/png', data: png, model: '@cf/black-forest-labs/flux-2-klein-4b' });
+    const [url, init] = fetch.mock.calls[0]!;
+    expect(url).toBe('https://api.cloudflare.com/client/v4/accounts/acc123/ai/run/@cf/black-forest-labs/flux-2-klein-4b');
+    expect(new Headers(init.headers).get('authorization')).toBe('Bearer cf-token');
+    const form = init.body as FormData;
+    expect(form.get('prompt')).toContain('Change ONLY the hairstyle');
+    expect(form.get('input_image_0')).toBeInstanceOf(Blob);
+    expect([form.get('width'), form.get('height')]).toEqual(['608', '768']);
+  });
+
+  it('accepts a raw image response too', async () => {
+    vi.stubGlobal('fetch', async () => new Response(fakeJpeg(608, 768), { headers: { 'content-type': 'image/jpeg' } }));
+    const result = await createCloudflareRunner(readConfig(CF))(input, new AbortController().signal);
+    expect(result.mime).toBe('image/jpeg');
+  });
+
+  it('refuses photos over 512 px before calling the service', async () => {
+    const fetch = vi.fn();
+    vi.stubGlobal('fetch', fetch);
+    const big = { ...input, image: { mime: 'image/jpeg' as const, base64: Buffer.from(fakeJpeg(1200, 1500)).toString('base64') } };
+    await expect(createCloudflareRunner(readConfig(CF))(big, new AbortController().signal)).rejects.toMatchObject({ code: 'preview_failed' });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [401, { success: false, errors: [{ code: 10000, message: 'Authentication error' }] }, 'provider_auth'],
+    [429, { success: false, errors: [{ code: 3040, message: 'Capacity temporarily exceeded' }] }, 'provider_rate_limited'],
+    [
+      400,
+      { success: false, errors: [{ code: 4006, message: 'you have used up your daily free allocation of 10,000 neurons' }] },
+      'provider_rate_limited',
+    ],
+    [500, { success: false, errors: [] }, 'provider_unavailable'],
+    [400, { success: false, errors: [{ code: 5006, message: 'bad input' }] }, 'preview_failed'],
+  ])('maps HTTP %i to a safe error', async (status, body, code) => {
+    vi.stubGlobal('fetch', async () => Response.json(body, { status }));
+    const error = await createCloudflareRunner(readConfig(CF))(input, new AbortController().signal).catch((problem: unknown) => problem);
+    expect(error).toMatchObject({ code });
+    expect(String((error as Error).message)).not.toContain('neurons');
   });
 });

@@ -42,7 +42,7 @@ const FAQ = [
   },
   {
     q: '¿Quién ve las imágenes?',
-    a: 'Ninguna persona de FOLIA. Las procesa el modelo Claude de Anthropic durante el análisis. Si pides una simulación, tu foto frontal va también a Google, y te lo preguntamos antes.',
+    a: 'Ninguna persona de FOLIA. Las procesa el modelo Claude de Anthropic durante el análisis. Si pides una simulación, tu foto frontal va también al servicio de imágenes, que el aviso nombra antes de enviar nada.',
   },
   {
     q: '¿Qué significa la compatibilidad?',
@@ -454,7 +454,7 @@ export function Landing() {
         </div>
         <div className="footer-credits">
           <p>Ilustraciones dibujadas en código para FOLIA. Tipografía Hanken Grotesk (SIL Open Font License).</p>
-          <p>Análisis con Claude (Anthropic) · simulaciones con Gemini (Google)</p>
+          <p>Análisis con Claude (Anthropic) · simulaciones con FLUX.2 (Cloudflare Workers AI) o Gemini (Google)</p>
         </div>
         <p className="footer-name" aria-hidden="true" translate="no">
           FOLIA

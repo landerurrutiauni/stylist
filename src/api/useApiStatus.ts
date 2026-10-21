@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
 import { ApiError, apiConfigured, checkHealth } from './client.ts';
 
+export type PreviewProvider = 'cloudflare' | 'google';
+
+interface PreviewInfo {
+  preview: boolean;
+  previewModel: string | null;
+  previewProvider: PreviewProvider | null;
+  previewMaxSide: number;
+}
+
 export type ApiStatus =
   | { state: 'checking' }
-  | { state: 'available'; model: string | null; preview: boolean; previewModel: string | null }
-  | { state: 'missing_api_key'; preview: boolean; previewModel: string | null }
+  | ({ state: 'available'; model: string | null } & PreviewInfo)
+  | ({ state: 'missing_api_key' } & PreviewInfo)
   | { state: 'not_configured' }
   | { state: 'unreachable'; message: string };
 
@@ -13,11 +22,15 @@ let cached: Promise<ApiStatus> | null = null;
 function load(): Promise<ApiStatus> {
   if (!apiConfigured) return Promise.resolve({ state: 'not_configured' });
   cached ??= checkHealth()
-    .then<ApiStatus>((health) =>
-      health.analysis === 'available'
-        ? { state: 'available', model: health.model, preview: health.preview === 'available', previewModel: health.previewModel }
-        : { state: 'missing_api_key', preview: health.preview === 'available', previewModel: health.previewModel },
-    )
+    .then<ApiStatus>((health) => {
+      const preview: PreviewInfo = {
+        preview: health.preview === 'available',
+        previewModel: health.previewModel,
+        previewProvider: health.previewProvider,
+        previewMaxSide: health.previewMaxSide,
+      };
+      return health.analysis === 'available' ? { state: 'available', model: health.model, ...preview } : { state: 'missing_api_key', ...preview };
+    })
     .catch((error: unknown) => {
       cached = null;
       return { state: 'unreachable', message: error instanceof ApiError ? error.message : 'No se ha podido comprobar el servidor.' };
@@ -47,10 +60,26 @@ export const STATUS_TEXT: Record<Exclude<ApiStatus['state'], 'available' | 'chec
   unreachable: 'No se ha podido contactar con el servidor de análisis.',
 };
 
-/** Whether hairstyle previews can be generated, and with which model. */
-export function previewStatus(status: ApiStatus): { available: boolean; model: string | null; checking: boolean } {
-  if (status.state === 'checking') return { available: false, model: null, checking: true };
-  if (status.state === 'available' || status.state === 'missing_api_key')
-    return { available: status.preview, model: status.previewModel, checking: false };
-  return { available: false, model: null, checking: false };
+export interface PreviewStatus {
+  available: boolean;
+  checking: boolean;
+  model: string | null;
+  provider: PreviewProvider | null;
+  /** Longest side of the photo to send. */
+  maxSide: number;
+}
+
+/** Whether hairstyle previews can be generated, with which service and model. */
+export function previewStatus(status: ApiStatus): PreviewStatus {
+  if (status.state === 'checking') return { available: false, checking: true, model: null, provider: null, maxSide: 1600 };
+  if (status.state === 'available' || status.state === 'missing_api_key') {
+    return {
+      available: status.preview,
+      checking: false,
+      model: status.previewModel,
+      provider: status.previewProvider,
+      maxSide: status.previewMaxSide,
+    };
+  }
+  return { available: false, checking: false, model: null, provider: null, maxSide: 1600 };
 }

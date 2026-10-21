@@ -135,6 +135,22 @@ export async function processPhoto(file: File, kind: PhotoKind, source: 'file' |
   }
 }
 
+/** A JPEG copy whose longest side is at most `maxSide` pixels (the photo itself when it already fits). */
+export async function downscale(blob: Blob, maxSide: number): Promise<Blob> {
+  const bitmap = await createImageBitmap(blob);
+  try {
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    if (scale === 1) return blob;
+    const canvas = canvasFor(Math.round(bitmap.width * scale), Math.round(bitmap.height * scale));
+    const context = canvas.getContext('2d');
+    if (!context) throw new PhotoError('unreadable', 'Este navegador no permite preparar la imagen.');
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    return await toJpeg(canvas);
+  } finally {
+    bitmap.close();
+  }
+}
+
 export function releasePhoto(photo: ProcessedPhoto | null | undefined) {
   if (photo) URL.revokeObjectURL(photo.url);
 }

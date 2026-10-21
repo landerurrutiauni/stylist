@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { cards, FIXTURES, formField, loads, mockApi, reachLiveResults } from './support.ts';
+import { cards, FIXTURES, formField, loads, mockApi, reachLiveResults, uploadedImageSize } from './support.ts';
 
 test('17 · "Borrar sesión" erases photos, answers and results', async ({ page }) => {
   await mockApi(page);
@@ -52,7 +52,7 @@ test('nothing is written to browser storage, cookies or IndexedDB', async ({ pag
   expect(await context.cookies()).toEqual([]);
 });
 
-test('AI preview: separate consent naming Google, labelled result, deletable', async ({ page }) => {
+test('AI preview: separate consent naming the service, labelled result, deletable', async ({ page }) => {
   const log = await mockApi(page);
   await reachLiveResults(page);
   const first = cards(page).first();
@@ -60,10 +60,11 @@ test('AI preview: separate consent naming Google, labelled result, deletable', a
 
   const dialog = page.getByRole('dialog', { name: 'Ver el corte sobre tu foto' });
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText('se envían a Google');
+  await expect(dialog).toContainText('se envían a Cloudflare');
   await expect(dialog).toContainText('modelo image-test-model');
+  await expect(dialog).toContainText('no conserva lo que recibe ni lo que genera');
   await expect(dialog.getByRole('button', { name: 'Aceptar y generar' })).toBeDisabled();
-  await dialog.getByRole('checkbox', { name: /La foto es mía y acepto enviarla a Google/ }).check();
+  await dialog.getByRole('checkbox', { name: /La foto es mía y acepto enviarla a Cloudflare/ }).check();
   await dialog.getByRole('button', { name: 'Aceptar y generar' }).click();
 
   const image = first.getByRole('img', { name: /Simulación generada por IA de tu foto frontal con Crop texturizado/ });
@@ -73,8 +74,10 @@ test('AI preview: separate consent naming Google, labelled result, deletable', a
   expect(log.preview).toHaveLength(1);
   expect(formField(log.preview[0]!, 'styleId')).toBe('textured-crop');
   expect(formField(log.preview[0]!, 'consent')).toBe('accepted');
-  // Only the frontal photo goes to the image service.
+  // Only the frontal photo goes to the image service, reduced to 512 px for Cloudflare.
   expect(log.preview[0]!.postDataBuffer()!.toString('latin1')).not.toContain('name="profile"');
+  const sent = uploadedImageSize(log.preview[0]!, 'frontal');
+  expect(Math.max(sent!.width, sent!.height)).toBeLessThanOrEqual(512);
 
   // The consent covers the session: the next preview starts straight away.
   const second = cards(page).nth(1);
@@ -142,4 +145,22 @@ test('"Ver un ejemplo" shows a demo without any photo', async ({ page }) => {
   // No photo, so no preview offer either.
   await expect(page.getByRole('button', { name: 'Ver cómo te queda' })).toHaveCount(0);
   expect(log.analyze).toHaveLength(0);
+});
+
+test('with Google as the image service, the consent names Google and its retention', async ({ page }) => {
+  const log = await mockApi(page, { previewProvider: 'google' });
+  await reachLiveResults(page);
+  await cards(page).first().getByRole('button', { name: 'Ver cómo te queda' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Ver el corte sobre tu foto' });
+  await expect(dialog).toContainText('se envían a Google');
+  await expect(dialog).toContainText('55 días');
+  await dialog.getByRole('checkbox', { name: /acepto enviarla a Google/ }).check();
+  await dialog.getByRole('button', { name: 'Aceptar y generar' }).click();
+  await expect(
+    cards(page)
+      .first()
+      .getByText(/SynthID/),
+  ).toBeVisible();
+  // Google gets the photo at its prepared size.
+  expect(uploadedImageSize(log.preview[0]!, 'frontal')).toMatchObject({ width: 1200, height: 1500 });
 });

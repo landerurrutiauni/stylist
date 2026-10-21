@@ -9,12 +9,17 @@ import { ModelError, type ModelImage } from './model.ts';
 /**
  * The hairstyle preview: the person's own frontal photo edited by an image
  * model so only the hair changes. Claude analyses but does not generate
- * images, so this step uses Google's Gemini API (Nano Banana image models),
- * called from the server with a key the browser never sees. Each preview is
- * requested explicitly by the person, after a consent that names Google.
+ * images, so this step uses an image model, called from the server with
+ * credentials the browser never sees:
  *
- * Requests set `store: false` so Google does not keep the interaction object;
- * Google's abuse monitoring still applies (see docs/PRIVACY.md).
+ * - Cloudflare Workers AI with FLUX.2 [klein] (default): free daily
+ *   allocation; Cloudflare does not keep inputs or outputs after the request
+ *   and does not train on them. Input photos must be at most 512 px.
+ * - Google's Gemini API (Nano Banana): paid image models. Requests set
+ *   `store: false`; Google's abuse monitoring still applies.
+ *
+ * Each preview is requested explicitly by the person, after a consent that
+ * names the service (see docs/PRIVACY.md).
  */
 
 export interface PreviewInput {
@@ -133,6 +138,100 @@ export function createGeminiRunner(config: ServerConfig): PreviewRunner {
   };
 }
 
+const CLOUDFLARE_ENDPOINT = 'https://api.cloudflare.com/client/v4/accounts';
+
+/** Longest side of the photo the browser sends: Cloudflare's FLUX.2 takes inputs up to 512 px. */
+export function previewMaxSide(config: ServerConfig): number {
+  return config.imageProvider === 'cloudflare' ? 512 : IMAGE_LIMITS.maxLongSide;
+}
+
+export function previewModelName(config: ServerConfig): string | null {
+  if (config.imageProvider === 'cloudflare') return config.cloudflareImageModel;
+  if (config.imageProvider === 'google') return config.imageModel;
+  return null;
+}
+
+function base64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
+}
+
+/** Output size: the input's proportions, 768 px on the long side, in steps of 16. */
+export function outputSize(width: number, height: number): { width: number; height: number } {
+  const scale = 768 / Math.max(width, height);
+  const round = (value: number) => Math.max(256, Math.round((value * scale) / 16) * 16);
+  return { width: round(width), height: round(height) };
+}
+
+export function createCloudflareRunner(config: ServerConfig): PreviewRunner {
+  return async (input, signal) => {
+    const bytes = Uint8Array.from(atob(input.image.base64), (char) => char.charCodeAt(0));
+    const size = sniffImage(bytes);
+    if (!size || Math.max(size.width, size.height) > 512) {
+      throw new ModelError('preview_failed', 'La foto para la simulación debe medir como máximo 512 px por lado.', false);
+    }
+    const form = new FormData();
+    form.append('prompt', previewPrompt(input));
+    form.append('input_image_0', new Blob([bytes], { type: input.image.mime }), 'frontal.jpg');
+    const out = outputSize(size.width, size.height);
+    form.append('width', String(out.width));
+    form.append('height', String(out.height));
+
+    let response: Response;
+    try {
+      response = await fetch(`${CLOUDFLARE_ENDPOINT}/${config.cloudflareAccountId}/ai/run/${config.cloudflareImageModel}`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${config.cloudflareApiToken ?? ''}` },
+        body: form,
+        signal,
+      });
+    } catch {
+      if (signal.aborted) throw new ModelError('provider_timeout', 'La vista previa tardó demasiado.', true);
+      throw new ModelError('provider_unavailable', 'No se pudo conectar con el servicio de imágenes.', true);
+    }
+
+    const type = response.headers.get('content-type') ?? '';
+    if (response.ok && type.startsWith('image/')) {
+      const data = new Uint8Array(await response.arrayBuffer());
+      const format = detectFormat(data);
+      if (!format) throw new ModelError('preview_failed', 'El servicio de imágenes devolvió un formato inesperado.', true);
+      return { mime: ACCEPTED_FORMATS[format] as PreviewResult['mime'], data: base64(data), model: config.cloudflareImageModel };
+    }
+
+    const body = (await response.json().catch(() => null)) as {
+      success?: boolean;
+      result?: { image?: string };
+      errors?: { code?: number; message?: string }[];
+    } | null;
+    const detail = (body?.errors ?? []).map((error) => `${error.code ?? ''} ${error.message ?? ''}`).join(' ');
+    if (response.status === 401 || response.status === 403) {
+      throw new ModelError('provider_auth', 'El servidor no puede autenticarse con el servicio de imágenes.', false);
+    }
+    if (response.status === 429 || /neuron|allocation|quota|rate limit/i.test(detail)) {
+      throw new ModelError('provider_rate_limited', 'Se ha agotado la cuota gratuita de simulaciones de hoy. Vuelve a intentarlo mañana.', true);
+    }
+    if (response.status >= 500) {
+      throw new ModelError('provider_unavailable', 'El servicio de imágenes no está disponible ahora mismo.', true);
+    }
+    const image = body?.result?.image;
+    if (!response.ok || !image) {
+      throw new ModelError('preview_failed', 'El servicio de imágenes no devolvió ninguna imagen para esta foto.', response.ok);
+    }
+    const head = Uint8Array.from(atob(image.slice(0, 64)), (char) => char.charCodeAt(0));
+    const format = detectFormat(head);
+    if (!format) throw new ModelError('preview_failed', 'El servicio de imágenes devolvió un formato inesperado.', true);
+    return { mime: ACCEPTED_FORMATS[format] as PreviewResult['mime'], data: image, model: config.cloudflareImageModel };
+  };
+}
+
+/** The configured image service, or null when none is set up. */
+export function createPreviewRunner(config: ServerConfig): PreviewRunner | null {
+  if (config.imageProvider === 'cloudflare') return createCloudflareRunner(config);
+  if (config.imageProvider === 'google') return createGeminiRunner(config);
+  return null;
+}
+
 // ------------------------------------------------------------- request
 
 export interface ValidPreview {
@@ -176,7 +275,8 @@ export async function readPreviewUpload(request: Request): Promise<{ ok: true; v
   const bytes = new Uint8Array(await file.arrayBuffer());
   const sniffed = sniffImage(bytes);
   if (!sniffed) return fail('unsupported_type', 'La foto frontal no es un JPEG, PNG ni WebP válido.');
-  if (Math.min(sniffed.width, sniffed.height) < IMAGE_LIMITS.minShortSide) return fail('invalid_image', 'La foto frontal es demasiado pequeña.');
+  // Previews may use a reduced copy of the photo (512 px for Cloudflare).
+  if (Math.min(sniffed.width, sniffed.height) < 256) return fail('invalid_image', 'La foto frontal es demasiado pequeña.');
 
   let binary = '';
   for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));

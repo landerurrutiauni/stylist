@@ -36,14 +36,20 @@ petición se marca como contraria a ella) o que lo exija la ley. Según
 [la misma fuente](https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-model-training), las entradas y salidas de sus
 productos comerciales, incluida la API, no se usan para entrenar modelos por defecto.
 
-### Google (simulación, opcional)
+### Simulación del corte (opcional)
 
-Solo si la persona pide ver un corte sobre su foto y acepta un segundo consentimiento que nombra a Google, se envían la foto frontal y la
-descripción del corte a la API de Gemini, con `store: false`. Según la
-[página de supervisión de abusos](https://ai.google.dev/gemini-api/docs/usage-policies), Google conserva las peticiones y respuestas 55 días
-para detectar infracciones de su política de uso. Según los [términos de la API](https://ai.google.dev/gemini-api/terms), en los servicios
-de pago Google no usa las peticiones ni las respuestas para mejorar sus productos; **en el nivel gratuito sí puede hacerlo**, así que la
-clave de Gemini debe pertenecer a un proyecto con facturación activada. Las imágenes generadas llevan la marca de agua SynthID.
+Solo si la persona pide ver un corte sobre su foto y acepta un segundo consentimiento que nombra al servicio, se envían la foto frontal y
+la descripción del corte a uno de estos servicios, según la configuración del servidor:
+
+- **Cloudflare Workers AI** (por defecto, gratuito), con el modelo FLUX.2 [klein] de Black Forest Labs. El navegador envía una copia de la
+  foto reducida a 512 px. Según la [página de uso de datos de Workers AI](https://developers.cloudflare.com/workers-ai/platform/data-usage/),
+  en las peticiones de inferencia normales Cloudflare no conserva las entradas ni las salidas una vez entregada la respuesta, no las usa para
+  entrenar modelos y no las pone a disposición de otros clientes, salvo las excepciones legales y de seguridad que describe.
+- **Google Gemini** (alternativa de pago), con `store: false`. Según la
+  [página de supervisión de abusos](https://ai.google.dev/gemini-api/docs/usage-policies), Google conserva las peticiones y respuestas 55 días
+  para detectar infracciones de su política de uso. Según los [términos de la API](https://ai.google.dev/gemini-api/terms), en los servicios
+  de pago Google no usa las peticiones ni las respuestas para mejorar sus productos. Los modelos de imagen de Gemini no tienen nivel
+  gratuito. Las imágenes generadas llevan la marca de agua SynthID.
 
 ### Supabase (alojamiento de la API)
 

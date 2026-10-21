@@ -1,8 +1,33 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { ApiError, requestPreview } from '../../api/client.ts';
-import { previewStatus, useApiStatus } from '../../api/useApiStatus.ts';
+import { previewStatus, useApiStatus, type PreviewProvider } from '../../api/useApiStatus.ts';
+import { downscale } from '../../images/process.ts';
 import type { Item } from '../../lib/results.ts';
 import { useSession } from '../../session/session.tsx';
+
+/** What the consent says about each image service, from its published terms. */
+const PROVIDERS: Record<PreviewProvider, { name: string; service: string; facts: string[]; caption: string }> = {
+  cloudflare: {
+    name: 'Cloudflare',
+    service: 'Workers AI, con el modelo FLUX.2 [klein] de Black Forest Labs',
+    facts: [
+      'Se envía una copia reducida de tu foto frontal (512 px), no la original.',
+      'Según su documentación, Cloudflare no conserva lo que recibe ni lo que genera una vez terminada la petición, y no lo usa para entrenar modelos.',
+      'Es gratuito dentro de una cuota diaria: si se agota, podrás volver a probar al día siguiente.',
+    ],
+    caption: 'Es una aproximación: el resultado real depende del corte, de tu pelo y del peinado.',
+  },
+  google: {
+    name: 'Google',
+    service: 'API de Gemini',
+    facts: [
+      'FOLIA pide a Google que no almacene la petición, pero Google conserva datos hasta 55 días para detectar usos que infrinjan su política.',
+      'Según las condiciones de Google, en proyectos de pago el contenido no se usa para mejorar sus productos.',
+    ],
+    caption:
+      'Es una aproximación: el resultado real depende del corte, de tu pelo y del peinado. Lleva una marca de agua invisible (SynthID) que la identifica como generada.',
+  },
+};
 
 /**
  * "Ver cómo te queda": an AI-edited version of the person's own frontal photo
@@ -42,9 +67,10 @@ export function PreviewPanel({ item, size }: { item: Item; size: 'compact' | 'fu
     const started = Date.now();
     const timer = window.setInterval(() => setElapsed(Math.round((Date.now() - started) / 1000)), 1000);
     try {
+      const photo = await downscale(frontal.blob, status.maxSide);
       const image = await requestPreview(
         {
-          frontal: frontal.blob,
+          frontal: photo,
           styleId: item.rec.styleId,
           variantName: item.rec.variantName,
           instructions: item.rec.salonInstructions,
@@ -81,6 +107,7 @@ export function PreviewPanel({ item, size }: { item: Item; size: 'compact' | 'fu
   };
 
   const unavailable = !status.available && !status.checking;
+  const provider = PROVIDERS[status.provider ?? 'google'];
 
   return (
     <div className={`preview preview-${size}`} data-testid="preview-panel">
@@ -104,8 +131,7 @@ export function PreviewPanel({ item, size }: { item: Item; size: 'compact' | 'fu
             </div>
           </div>
           <figcaption className="preview-caption">
-            Imagen generada con IA ({preview.model}) a partir de tu foto. Es una aproximación: el resultado real depende del corte, de tu pelo y del
-            peinado. Lleva una marca de agua invisible (SynthID) que la identifica como generada.
+            Imagen generada con IA ({preview.model}) a partir de tu foto. {provider.caption}
           </figcaption>
         </figure>
       ) : null}
@@ -157,21 +183,20 @@ export function PreviewPanel({ item, size }: { item: Item; size: 'compact' | 'fu
       <dialog ref={dialog} className="dialog" aria-labelledby={`${id}-title`}>
         <h2 id={`${id}-title`}>Ver el corte sobre tu foto</h2>
         <p>
-          Para generar la simulación, tu foto frontal y la descripción del corte se envían a <strong>Google</strong> (API de Gemini
-          {status.model ? `, modelo ${status.model}` : ''}), que devuelve tu foto con el pelo cambiado. Claude, el modelo que hace el análisis, no
+          Para generar la simulación, tu foto frontal y la descripción del corte se envían a <strong>{provider.name}</strong> ({provider.service}
+          {status.model ? `; modelo ${status.model}` : ''}), que devuelve tu foto con el pelo cambiado. Claude, el modelo que hace el análisis, no
           genera imágenes.
         </p>
         <ul className="plain-list">
           <li>FOLIA no guarda ni tu foto ni la imagen generada: solo se muestran en este navegador.</li>
-          <li>
-            FOLIA pide a Google que no almacene la petición, pero Google conserva datos hasta 55 días para detectar usos que infrinjan su política.
-          </li>
-          <li>Según las condiciones de Google, en proyectos de pago el contenido no se usa para mejorar sus productos.</li>
-          <li>Usa solo fotos tuyas. La imagen es una simulación y lleva una marca de agua invisible que la identifica.</li>
+          {provider.facts.map((fact) => (
+            <li key={fact}>{fact}</li>
+          ))}
+          <li>Usa solo fotos tuyas. La imagen es una simulación generada por IA y así se indica siempre.</li>
         </ul>
         <label className="check">
           <input type="checkbox" checked={agree} onChange={(event) => setAgree(event.target.checked)} />
-          <span>La foto es mía y acepto enviarla a Google para generar simulaciones en esta sesión.</span>
+          <span>La foto es mía y acepto enviarla a {provider.name} para generar simulaciones en esta sesión.</span>
         </label>
         <div className="dialog-actions">
           <button type="button" className="btn btn-outline" onClick={() => dialog.current?.close()}>

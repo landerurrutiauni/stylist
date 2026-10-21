@@ -2,6 +2,7 @@ import { expect, type Page, type Request, type Route } from '@playwright/test';
 import type { AnalysisEnvelope } from '../../shared/schema/analysis.ts';
 import { fakeJpegBase64 } from './images.ts';
 import { liveEnvelope } from '../fixtures/analysis.ts';
+import { sniffImage } from '../../shared/imageSniff.ts';
 
 export const API = 'https://api.folia.test';
 export const FIXTURES = 'tests/fixtures/generated';
@@ -21,6 +22,8 @@ export interface AnalyzeReply {
 
 export interface MockOptions {
   health?: Health;
+  /** The image service the health check reports (Cloudflare by default, as deployed). */
+  previewProvider?: 'cloudflare' | 'google';
   /** One reply per analysis request, in order; the last one repeats. */
   analyze?: AnalyzeReply[];
   preview?: { status?: number; body?: object; delayMs?: number };
@@ -78,6 +81,8 @@ export async function mockApi(page: Page, options: MockOptions = {}): Promise<Ap
         model: analysis === 'available' ? 'claude-test-model' : null,
         preview,
         previewModel: preview === 'available' ? 'image-test-model' : null,
+        previewProvider: preview === 'available' ? (options.previewProvider ?? 'cloudflare') : null,
+        previewMaxSide: (options.previewProvider ?? 'cloudflare') === 'cloudflare' ? 512 : 1600,
         limits: { maxImageBytes: 4194304, perHour: 6, previewsPerHour: 10 },
       });
     }
@@ -228,3 +233,13 @@ export const loads = (page: Page, url: string) =>
       }),
     url,
   );
+
+/** Pixel size of the image sent in a multipart field, read from its bytes. */
+export function uploadedImageSize(request: Request, name: string) {
+  const body = request.postDataBuffer() ?? Buffer.alloc(0);
+  const marker = Buffer.from(`name="${name}"`);
+  const start = body.indexOf(marker);
+  if (start < 0) return null;
+  const dataStart = body.indexOf(Buffer.from('\r\n\r\n'), start) + 4;
+  return sniffImage(new Uint8Array(body.subarray(dataStart, dataStart + 65536)));
+}

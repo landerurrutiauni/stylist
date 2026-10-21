@@ -17,7 +17,9 @@ Dice si el análisis y la simulación están disponibles, sin revelar nada secre
   "analysis": "available | missing_api_key",
   "model": "claude-opus-5-5",
   "preview": "available | missing_api_key",
-  "previewModel": "gemini-nano-banana-2.1",
+  "previewModel": "@cf/black-forest-labs/flux-2-klein-4b",
+  "previewProvider": "cloudflare | google | null",
+  "previewMaxSide": 512,
   "limits": { "maxImageBytes": 4194304, "perHour": 6, "previewsPerHour": 10 }
 }
 ```
@@ -51,7 +53,16 @@ o, si algo falla durante el análisis, `{"type":"error","code","message","retrya
 ### `POST /preview`
 
 `multipart/form-data` con `frontal`, `styleId` (del catálogo), `variantName`, `instructions`, `texture` y `consent=accepted`. Devuelve
-`{"type":"preview","styleId","mime","data"(base64),"model"}`. Solo se envía la foto frontal.
+`{"type":"preview","styleId","mime","data"(base64),"model"}`. Solo se envía la foto frontal, con el lado largo a como mucho
+`previewMaxSide` píxeles (lo indica `/health`).
+
+El servicio de imágenes se elige así:
+
+- **Cloudflare Workers AI** (por defecto si están `CLOUDFLARE_ACCOUNT_ID` y `CLOUDFLARE_API_TOKEN`): modelo `@cf/black-forest-labs/flux-2-klein-4b`
+  (`CLOUDFLARE_IMAGE_MODEL`), petición `multipart` con `prompt`, `input_image_0` (≤ 512 px), `width` y `height` (proporción de la foto, 768 px
+  de lado largo). Gratis dentro de la cuota diaria de 10.000 «neuronas»; cuando se agota responde con `provider_rate_limited`.
+- **Google Gemini** (si solo está `GEMINI_API_KEY`, o con `IMAGE_PROVIDER=google`): API de Interactions, `store: false`. Los modelos de imagen
+  de Gemini no tienen nivel gratuito.
 
 ## Errores
 
@@ -110,7 +121,7 @@ La prueba [`tests/unit/model.test.ts`](../tests/unit/model.test.ts) comprueba la
    `build:edge` empaqueta `server/` en `supabase/functions/folia-analyze/index.js` y deja `zod` y `@anthropic-ai/sdk` como importaciones
    `npm:` con las versiones de `package-lock.json`.
 3. Define los secretos (Dashboard › Edge Functions › Secrets, o `npx supabase secrets set`):
-   `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` (opcional), `ALLOWED_ORIGINS` y `RATE_LIMIT_SALT` y, si quieres,
+   `ANTHROPIC_API_KEY`, `CLOUDFLARE_ACCOUNT_ID` y `CLOUDFLARE_API_TOKEN` (simulación gratuita) o `GEMINI_API_KEY`, `ALLOWED_ORIGINS` y `RATE_LIMIT_SALT` y, si quieres,
    `ANTHROPIC_MODEL`, `RATE_LIMIT_PER_HOUR`, `DAILY_ANALYSIS_LIMIT`. `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` los pone la plataforma.
 4. Comprueba: `curl https://<ref>.supabase.co/functions/v1/folia-analyze/health -H "Origin: https://landerurrutiauni.github.io"`.
 
@@ -126,7 +137,7 @@ de este repositorio fijado al commit `3b2d5f9` (`https://raw.githubusercontent.c
 y un `deno.json` que mapea `zod` y `@anthropic-ai/sdk` a `npm:`. Supabase empaqueta el código en el momento del despliegue, así que la
 función no depende de GitHub mientras se ejecuta. Para actualizarla, usa el paso 2 de arriba.
 
-Pendiente en ese proyecto: los secretos `ANTHROPIC_API_KEY` (y `GEMINI_API_KEY` si quieres simulaciones) y la migración del límite de uso.
+Pendiente en ese proyecto: los secretos `ANTHROPIC_API_KEY` y, para las simulaciones, `CLOUDFLARE_ACCOUNT_ID` y `CLOUDFLARE_API_TOKEN`, y la migración del límite de uso.
 
 ## Desarrollo local
 

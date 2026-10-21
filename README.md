@@ -27,7 +27,7 @@ Navegador (GitHub Pages, estático)                 Supabase Edge Function (Deno
 fotos → validación, EXIF fuera, 1600 px     ──►     /analyze  CORS, límites, validación  ──►   Anthropic (Claude, visión)
 cuestionario (Zod)                          ◄──     NDJSON: etapas, progreso, resultado        respuesta JSON con esquema
 resultados, filtros, comparación                    Zod + auditoría + puntuación
-simulación (opcional, 2.º consentimiento)   ──►     /preview  ──────────────────────────►      Google (Gemini, edición de imagen)
+simulación (opcional, 2.º consentimiento)   ──►     /preview  ──────────────────────────►      Cloudflare Workers AI (FLUX.2) o Gemini
 ```
 
 - **El navegador no conoce ninguna clave.** Solo sabe la URL pública de la API (`VITE_API_BASE_URL`). Las claves de Anthropic y Google viven
@@ -44,8 +44,8 @@ simulación (opcional, 2.º consentimiento)   ──►     /preview  ───�
 ## Requisitos
 
 - Node.js 22 o posterior y npm.
-- Para el análisis real: una clave de la API de Anthropic. Para la simulación: una clave de la API de Gemini (proyecto de pago; ver
-  [docs/PRIVACY.md](docs/PRIVACY.md)).
+- Para el análisis real: una clave de la API de Anthropic. Para la simulación: una cuenta gratuita de Cloudflare (Workers AI) o, como
+  alternativa de pago, una clave de Gemini (ver [docs/PRIVACY.md](docs/PRIVACY.md)).
 
 ## Ejecución local
 

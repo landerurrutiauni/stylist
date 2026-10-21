@@ -59,6 +59,10 @@ export const healthSchema = z.object({
   /** AI hairstyle preview (image editing) on the person's frontal photo. */
   preview: z.enum(['available', 'missing_api_key']),
   previewModel: z.string().nullable(),
+  /** The service that edits the photo, so the consent can name it. */
+  previewProvider: z.enum(['cloudflare', 'google']).nullable().default(null),
+  /** Longest side, in pixels, of the photo the browser sends for a preview. */
+  previewMaxSide: z.number().int().positive().default(1600),
   limits: z.object({
     maxImageBytes: z.number(),
     perHour: z.number(),

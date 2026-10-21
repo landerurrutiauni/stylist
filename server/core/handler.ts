@@ -3,7 +3,7 @@ import type { ErrorBody, Health, StreamEvent } from '../../shared/schema/events.
 import { IMAGE_LIMITS } from '../../shared/imageSniff.ts';
 import { readConfig, type Env, type ServerConfig } from './config.ts';
 import { createAnthropicRunner, ModelError, type ModelRunner } from './model.ts';
-import { createGeminiRunner, readPreviewUpload, type PreviewRunner } from './preview.ts';
+import { createPreviewRunner, previewMaxSide, previewModelName, readPreviewUpload, type PreviewRunner } from './preview.ts';
 import { describeAnswers } from './prompt.ts';
 import { clientAddress, hashKey, MemoryRateLimiter, type RateLimiter } from './rateLimit.ts';
 import { readUpload } from './upload.ts';
@@ -79,7 +79,7 @@ function countRecommendations(text: string): number {
 export function createHandler(deps: HandlerDeps) {
   const config = readConfig(deps.env);
   const runner = deps.runner ?? (config.apiKey ? createAnthropicRunner(config) : null);
-  const previewRunner = deps.previewRunner ?? (config.geminiApiKey ? createGeminiRunner(config) : null);
+  const previewRunner = deps.previewRunner ?? createPreviewRunner(config);
   const limiter = deps.limiter ?? new MemoryRateLimiter();
   const log = deps.log ?? (() => {});
   const now = deps.now ?? (() => new Date());
@@ -190,7 +190,9 @@ export function createHandler(deps: HandlerDeps) {
         analysis: runner ? 'available' : 'missing_api_key',
         model: runner ? config.model : null,
         preview: previewRunner ? 'available' : 'missing_api_key',
-        previewModel: previewRunner ? config.imageModel : null,
+        previewModel: previewRunner ? previewModelName(config) : null,
+        previewProvider: previewRunner ? config.imageProvider : null,
+        previewMaxSide: previewMaxSide(config),
         limits: { maxImageBytes: IMAGE_LIMITS.maxUploadBytes, perHour: config.perHour, previewsPerHour: config.previewPerHour },
       };
       return json(health, 200, cors);
