@@ -1,0 +1,110 @@
+# Tests every push, then publishes the static build to GitHub Pages from the
+# default branch. The analysis API is a separate Supabase Edge Function: the
+# build only learns its public URL (VITE_API_BASE_URL), never a secret.
+name: Test and publish
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Public URL of the API. Override with a repository variable if it moves.
+  VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://klyhstkwquvphncvdguv.supabase.co/functions/v1/folia-analyze' }}
+
+jobs:
+  test:
+    name: Lint, unit and end-to-end tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm test
+      - run: npm run fixtures
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          CI: 'true'
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
+  build:
+    name: Build for GitHub Pages
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # A project site lives under /<repository>/.
+      - run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+      - run: npm run build:edge
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    name: Publish to GitHub Pages
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Needs Settings › Pages › Source: GitHub Actions (enablement can only
+      # be done here when the token is allowed to administer the repository).
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+        continue-on-error: true
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  edge-function:
+    name: Deploy the API to Supabase
+    needs: test
+    # Runs only when a Supabase access token has been added as a secret.
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch && vars.SUPABASE_PROJECT_REF != ''
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build:edge
+      - run: npx --yes supabase@2 functions deploy folia-analyze --project-ref "${{ vars.SUPABASE_PROJECT_REF }}" --no-verify-jwt --use-api

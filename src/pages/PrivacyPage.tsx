@@ -39,9 +39,10 @@ export function PrivacyPage() {
           además sus propios registros técnicos de cada petición, como cualquier servicio web.
         </p>
         <p>
-          Según la documentación pública de Anthropic consultada en la fecha de revisión, las imágenes enviadas a su API no se conservan más allá de
-          la petición, el contenido no se usa para entrenar modelos sin permiso expreso, y Anthropic puede conservar datos si la ley lo exige o si sus
-          sistemas automáticos de seguridad marcan una petición, en cuyo caso hasta dos años. FOLIA no controla ni puede garantizar ese tratamiento.
+          Según el centro de privacidad de Anthropic (revisado en octubre de 2026), las entradas y salidas de su API se borran automáticamente en un
+          plazo de 30 días y no se usan para entrenar modelos salvo que el cliente lo permita. Anthropic puede conservarlas más tiempo si la ley lo
+          exige o si sus sistemas automáticos de seguridad marcan la petición como contraria a su política de uso, en cuyo caso hasta dos años. Quien
+          publique FOLIA puede acordar con Anthropic una retención cero. FOLIA no controla ni puede garantizar ese tratamiento.
         </p>
 
         <h2>La simulación de cómo te queda</h2>

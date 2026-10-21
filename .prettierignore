@@ -1,5 +1,6 @@
 dist
-dist-edge
+supabase/functions/folia-analyze/index.js
+dist-e2e
 node_modules
 .claude
 .agents

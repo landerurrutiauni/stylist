@@ -1,0 +1,10 @@
+# Supabase CLI settings for the FOLIA API. Deploy with:
+#   npm run build:edge && npx supabase functions deploy folia-analyze --project-ref <ref> --no-verify-jwt --use-api
+project_id = "folia"
+
+[functions.folia-analyze]
+enabled = true
+# The browser calls the function without a Supabase session; the function
+# does its own origin check and rate limiting.
+verify_jwt = false
+entrypoint = "./functions/folia-analyze/index.js"

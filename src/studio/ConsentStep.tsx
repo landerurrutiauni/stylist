@@ -54,9 +54,9 @@ export function ConsentStep() {
         <div>
           <dt>Qué hace Anthropic</dt>
           <dd>
-            Según su documentación pública, las imágenes no se conservan más allá de la petición y el contenido no se usa para entrenar modelos sin
-            permiso expreso. Puede conservar datos si la ley lo exige o si sus sistemas de seguridad marcan una petición. FOLIA no controla ese
-            tratamiento.
+            Según su política de privacidad, borra de sus sistemas lo que recibe y genera su API en un plazo de 30 días y no lo usa para entrenar
+            modelos salvo que se lo permitas. Puede conservarlo más tiempo si la ley lo exige o si sus sistemas de seguridad marcan la petición como
+            contraria a su política de uso (hasta dos años). FOLIA no controla ese tratamiento.
           </dd>
         </div>
         <div>
