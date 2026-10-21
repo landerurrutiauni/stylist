@@ -91,7 +91,7 @@ export function readConfig(env: Env): ServerConfig {
     cloudflareImageModel: env.CLOUDFLARE_IMAGE_MODEL?.trim() || DEFAULT_CLOUDFLARE_IMAGE_MODEL,
     geminiApiKey: env.GEMINI_API_KEY?.trim() || null,
     imageModel: env.IMAGE_MODEL?.trim() || DEFAULT_IMAGE_MODEL,
-    previewPerHour: int(env.PREVIEW_PER_HOUR, 10, 1, 1000),
+    previewPerHour: int(env.PREVIEW_PER_HOUR, 30, 1, 1000),
     previewPerDay: int(env.PREVIEW_DAILY_LIMIT, 200, 1, 100_000),
     previewTimeoutMs: int(env.PREVIEW_TIMEOUT_MS, 90_000, 15_000, 280_000),
   };
