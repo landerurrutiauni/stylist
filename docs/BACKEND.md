@@ -118,6 +118,16 @@ En Supabase, si no defines `ALLOWED_ORIGINS`, la función admite solo `https://l
 `RATE_LIMIT_SALT`, usa como sal la clave secreta de servicio del propio proyecto (nunca sale de la función). En cualquier otra plataforma,
 sin `ALLOWED_ORIGINS` la API rechaza las llamadas del navegador con `origin_not_allowed`.
 
+## Despliegue actual
+
+El proyecto de Supabase `folia` (`klyhstkwquvphncvdguv`, región `eu-west-3`) tiene la función `folia-analyze` (versión 1, `verify_jwt`
+desactivado). Se desplegó con la herramienta de Supabase de esta sesión a partir de un punto de entrada que importa `server/supabase/index.ts`
+de este repositorio fijado al commit `3b2d5f9` (`https://raw.githubusercontent.com/landerurrutiauni/stylist/3b2d5f93…/server/supabase/index.ts`)
+y un `deno.json` que mapea `zod` y `@anthropic-ai/sdk` a `npm:`. Supabase empaqueta el código en el momento del despliegue, así que la
+función no depende de GitHub mientras se ejecuta. Para actualizarla, usa el paso 2 de arriba.
+
+Pendiente en ese proyecto: los secretos `ANTHROPIC_API_KEY` (y `GEMINI_API_KEY` si quieres simulaciones) y la migración del límite de uso.
+
 ## Desarrollo local
 
 `npm run dev:api` lee `.env`, permite por defecto `http://localhost:5173` y `http://localhost:4173` y escucha en `http://localhost:8787`.
