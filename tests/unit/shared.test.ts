@@ -5,6 +5,7 @@ import { analysisOutputSchema, auditAnalysis } from '../../shared/schema/analysi
 import { answersSchema, cleanText, emptyDraft, TEXT_LIMITS } from '../../shared/schema/answers.ts';
 import { streamEventSchema } from '../../shared/schema/events.ts';
 import { band, compatibility, type Factors } from '../../shared/scoring.ts';
+import { styleCodeLabel } from '../../shared/labels.ts';
 import { outputFormat } from '../../server/core/outputSchema.ts';
 import { liveEnvelope, liveOutput, unusableOutput } from '../fixtures/analysis.ts';
 import { ANSWERS, fakeJpeg, fakePng, fakeWebpVp8x } from './helpers.ts';
@@ -166,6 +167,45 @@ describe('catalogue', () => {
         expect(styles.length, `${expression} ${length}`).toBeGreaterThanOrEqual(2);
       }
     }
+  });
+
+  it('keeps masculine and feminine long cuts apart', () => {
+    const long = CATALOG.filter((style) => style.length === 'long');
+    const masculine = long.filter((style) => style.expressions.includes('masculine'));
+    const feminine = long.filter((style) => style.expressions.includes('feminine'));
+    expect(masculine.length).toBeGreaterThanOrEqual(5);
+    expect(feminine.length).toBeGreaterThanOrEqual(5);
+    // Only the protective braids are coded for both; every other long cut is built for one code.
+    expect(masculine.filter((style) => feminine.includes(style)).map((style) => style.id)).toEqual(['box-braids']);
+    expect(masculine.map((style) => style.id)).toEqual(expect.arrayContaining(['man-bun', 'long-shoulder', 'long-swept-back']));
+  });
+
+  it('offers middle parts, side parts and fringes at every length', () => {
+    for (const length of ['short', 'medium', 'long'] as const) {
+      const styles = CATALOG.filter((style) => style.length === length);
+      expect(
+        styles.some((style) => style.figure.part === 'center'),
+        `${length} middle part`,
+      ).toBe(true);
+      expect(
+        styles.some((style) => style.figure.part === 'side'),
+        `${length} side part`,
+      ).toBe(true);
+      expect(
+        styles.some((style) => style.figure.fringe === 'blunt'),
+        `${length} blunt fringe`,
+      ).toBe(true);
+      expect(
+        styles.some((style) => style.figure.fringe === 'curtain'),
+        `${length} curtain fringe`,
+      ).toBe(true);
+    }
+  });
+
+  it('names style codes in words', () => {
+    expect(styleCodeLabel(['masculine', 'feminine', 'androgynous'])).toBe('unisex');
+    expect(styleCodeLabel(['androgynous', 'masculine'])).toBe('masculino / andrógino');
+    expect(styleCodeLabel(['feminine'])).toBe('femenino');
   });
 
   it('covers every texture at every length', () => {

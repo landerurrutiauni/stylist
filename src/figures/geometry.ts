@@ -224,6 +224,8 @@ function frontParts(spec: FigureSpec): FigureParts {
   const outlineRight = spec.texture === 'wavy' ? [rightSide[0]!, ...wave(rightSide.slice(1), 2)] : rightSide;
   const hair = `${smooth([...outlineLeft, ...outlineRight], false)} Z`;
   const curls = curly ? curlsAlong([...leftSide.slice(0, sideEnd ? -1 : undefined), ...rightSide.slice(sideEnd ? 1 : 0)], spec.texture) : [];
+  // A bun is drawn as one more round shape, on top of the crown.
+  if (spec.bun) curls.push({ cx: 200, cy: r(crownY - 14), r: 25 });
 
   // The face window: everything under the fringe and inside the side hair.
   const hairline = tucked || spec.fringe === 'up' ? 142 : 150;
@@ -295,7 +297,17 @@ function frontParts(spec: FigureSpec): FigureParts {
     const cover = spec.sides === 'wide' ? 64 : spec.layers === 'heavy' ? 62 : 66;
     windowLeft.push([200 - cover - 4, 236], [200 - cover, 290], [200 - cover + 8, 330], [200 - 36, 372], [200 - 30, 420], [200 - 26, 520]);
   }
-  const windowPts: Pt[] = spec.fringe === 'side' ? [...windowLeft, ...mirror(windowLeft.slice(1))] : [...windowLeft, ...mirror(windowLeft)];
+  // An off-centre hairline is not mirrored at its first point. With a side
+  // parting, the right-hand hairline also starts right of the parting, or the
+  // window doubles back and shows a sliver of forehead above the hair.
+  const sidePartOnly = (spec.fringe === 'none' || spec.fringe === 'up') && spec.part === 'side';
+  const partX = windowLeft[0]![0];
+  const windowPts: Pt[] =
+    spec.fringe === 'side'
+      ? [...windowLeft, ...mirror(windowLeft.slice(1))]
+      : sidePartOnly
+        ? [...windowLeft, ...mirror(windowLeft.slice(1)).filter(([x, y]) => y > 200 || x > partX)]
+        : [...windowLeft, ...mirror(windowLeft)];
 
   return {
     hair,
@@ -379,6 +391,10 @@ function braid(x: number, top: number, bottom: number, short = false): string {
 }
 
 function frontCut(spec: FigureSpec, side: number, endY: number, sideEnd: boolean) {
+  if (spec.bun) {
+    const y = 112 - spec.top * 92 + 4;
+    return { d: `M172,${y} L228,${y}`, label: 'recogido en moño' };
+  }
   if (sideEnd) {
     const y = spec.sides === 'skin' ? 222 : 236;
     const x = 200 - side + 4;
@@ -414,7 +430,8 @@ function profileParts(spec: FigureSpec): FigureParts {
   const lift = spec.top * 92;
   const crownY = 108 - lift;
   const endY = PROFILE_LENGTH_Y[spec.length];
-  const short = spec.sides === 'skin' || spec.sides === 'short' || (spec.sides === 'close' && endY <= 300);
+  // Hair gathered in a bun sits tight to the head, like a short cut.
+  const short = spec.sides === 'skin' || spec.sides === 'short' || (spec.sides === 'close' && endY <= 300) || Boolean(spec.bun);
   const curly = spec.texture === 'curly' || spec.texture === 'coily';
   const backX = (spec.sides === 'wide' ? 330 : spec.sides === 'full' ? 320 : 312) + spec.top * (spec.sides === 'wide' ? 40 : 14);
   const frontX = 162 - spec.top * (curly ? 34 : 14) - (spec.fringe === 'up' ? spec.top * 30 : 0);
@@ -440,6 +457,7 @@ function profileParts(spec: FigureSpec): FigureParts {
   const last = shaped[shaped.length - 1]!;
   const hair = `${smooth(shaped, false)} L${r(last[0] - 60)},${r(Math.max(last[1], 330))} L${r(frontX + 40)},240 Z`;
   const curls = curly ? curlsAlong(outline.slice(0, -1), spec.texture) : [];
+  if (spec.bun) curls.push({ cx: r(backX - 14), cy: r(crownY + 26), r: 30 });
 
   // The window: the face, the ear when it shows, and the neck.
   const fringeTip: Pt =
@@ -499,6 +517,10 @@ function profileStrands(spec: FigureSpec, crownY: number, backX: number, endY: n
 }
 
 function profileCut(spec: FigureSpec, backX: number, endY: number, short: boolean) {
+  if (spec.bun) {
+    // Tied hair has no visible cut line: mark the nape hairline instead.
+    return { d: `M${backX - 30},296 L${backX + 12},280`, label: `suelto, largo ${LENGTH_WORDS[spec.length]}` };
+  }
   if (short) {
     const y = spec.sides === 'skin' ? 252 : 282;
     return {

@@ -24,6 +24,7 @@ function catalogueLines(): string {
       `- id: ${style.id}`,
       `  name: ${style.name} | length: ${style.length} | style codes: ${style.expressions.join(', ')}`,
       `  aesthetics: ${style.aesthetics.join(', ')} | made for textures: ${style.textures.join(', ')} | densities: ${style.densities.join(', ')}`,
+      `  shape: ends at ${style.figure.length} | parting: ${style.figure.part} | fringe: ${style.figure.fringe}${style.figure.swept ? ` | combed ${style.figure.swept}` : ''}${style.figure.bun ? ' | worn in a bun' : ''}`,
       `  typical minutes/day: ${style.minutes} | trim every ${style.cadence[0]}–${style.cadence[1]} weeks | styling difficulty: ${style.difficulty}`,
       `  what it is: ${style.summary}`,
       `  base salon brief: ${style.barber}`,
@@ -69,6 +70,10 @@ Style codes are about the cut, never about the person:
 - "mixed": combine cuts from different codes and say which codes each mixes.
 - "all": any cut.
 Never filter or comment on anything because of how the person looks.
+
+The same length is not the same cut across codes: a masculine long cut (a shoulder-length melena, a bun, hair swept back) is built differently from a feminine long cut (long layers, a butterfly cut, long hair with a fringe). Never present a cut under a code it does not have, and do not rename a feminine cut to make it pass as masculine, or the reverse. When the person chose "mixed" or "all", say in each rationale which code the cut comes from.
+
+Within one length, make the options genuinely different: vary the parting (middle, side, none), the fringe (none, curtain, blunt, side, textured) and the shape where the answers allow it, instead of three versions of the same silhouette.
 
 Aim for three recommendations in each length category (short, medium, long), and never more than four in one category. Give fewer when the person's answers do not justify three distinct options (for example, a declared texture the cut is not made for, a dislike they wrote, or a routine the cut cannot meet), and explain why in coverage.short, coverage.medium or coverage.long; otherwise leave that coverage string empty. Do not pad a category with near-identical variations of one cut. A recommendation with low confidence is allowed when you say why.
 

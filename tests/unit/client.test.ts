@@ -40,6 +40,17 @@ describe('demo mode', () => {
     for (const rec of analysis.output.recommendations) expect(getStyle(rec.styleId)!.textures).toContain('coily');
   });
 
+  it('varies parting and fringe within a length', () => {
+    const analysis = demoAnalysis({ ...SAMPLE_ANSWERS, expression: 'all' });
+    for (const length of ['short', 'medium', 'long'] as const) {
+      const shapes = analysis.output.recommendations
+        .map((rec) => getStyle(rec.styleId)!)
+        .filter((style) => style.length === length)
+        .map((style) => `${style.figure.part}/${style.figure.fringe}`);
+      expect(new Set(shapes).size, length).toBe(shapes.length);
+    }
+  });
+
   it('changes with the answers', () => {
     const quick = demoAnalysis({ ...ANSWERS, maintenance: 'under5', aesthetics: ['minimal'] });
     const slow = demoAnalysis({ ...ANSWERS, maintenance: 'over20', aesthetics: ['romantic', 'elegant'] });

@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { Link } from 'react-router';
 import type { FactorKey } from '../../../shared/schema/analysis.ts';
-import { aestheticLabels, difficultyShort, lengthCategoryLabels } from '../../../shared/labels.ts';
+import { aestheticLabels, difficultyShort, lengthCategoryLabels, styleCodeLabel } from '../../../shared/labels.ts';
 import { BAND_LABELS } from '../../../shared/scoring.ts';
 import { HeadSheet } from '../../figures/HeadSheet.tsx';
 import { cadenceText, type Item } from '../../lib/results.ts';
@@ -25,7 +25,7 @@ export function RecommendationCard({ item, skip }: { item: Item; skip: FactorKey
       </div>
       <div className="card-body">
         <p className="card-meta">
-          {lengthCategoryLabels[item.length]} · {rec.aesthetics.map((key) => aestheticLabels[key]).join(', ')}
+          {lengthCategoryLabels[item.length]} {styleCodeLabel(style.expressions)} · {rec.aesthetics.map((key) => aestheticLabels[key]).join(', ')}
         </p>
         <h3 id={`${id}-name`} className="card-name">
           {rec.variantName}

@@ -796,6 +796,14 @@
   text-align: right;
 }
 
+.lineup-code {
+  margin-left: 6px;
+  color: var(--ink-muted);
+  font-size: var(--step-small);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
 .lineup-group th {
   position: sticky;
   top: 0;

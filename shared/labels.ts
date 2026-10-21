@@ -108,3 +108,19 @@ export const difficultyShort: Record<Difficulty, string> = {
   medium: 'Media',
   high: 'Alta',
 };
+
+const CODE_WORDS: Record<Exclude<Expression, 'mixed' | 'all'>, string> = {
+  masculine: 'masculino',
+  feminine: 'femenino',
+  androgynous: 'andrógino',
+};
+
+/** The style codes a cut belongs to, in words: "masculino / andrógino", or "unisex" when it has all three. */
+export function styleCodeLabel(expressions: readonly Exclude<Expression, 'mixed' | 'all'>[]): string {
+  if (expressions.length >= 3) return 'unisex';
+  const order: Exclude<Expression, 'mixed' | 'all'>[] = ['masculine', 'feminine', 'androgynous'];
+  return order
+    .filter((code) => expressions.includes(code))
+    .map((code) => CODE_WORDS[code])
+    .join(' / ');
+}

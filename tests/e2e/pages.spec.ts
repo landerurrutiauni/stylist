@@ -204,3 +204,18 @@ test('accessibility: photos, consent and comparison screens', async ({ page }) =
   await page.getByRole('navigation', { name: 'Pasos del estudio' }).getByRole('link', { name: 'Consentimiento' }).click();
   await axe(page, 'consent');
 });
+
+test('the catalogue separates masculine and feminine cuts at the same length', async ({ page }) => {
+  await mockApi(page);
+  await page.goto('./');
+  const lineup = page.locator('section.lineup');
+  await lineup.getByRole('radio', { name: 'Masculinos' }).check({ force: true });
+  await expect(lineup.getByText(/cortes: de estilos masculinos/)).toBeVisible();
+  const table = lineup.getByRole('table');
+  await expect(table.getByRole('rowheader', { name: /Melena recogida en moño/ })).toBeVisible();
+  await expect(table.getByRole('rowheader', { name: /Butterfly cut/ })).toHaveCount(0);
+  await lineup.getByRole('radio', { name: 'Femeninos' }).check({ force: true });
+  await expect(table.getByRole('rowheader', { name: /Butterfly cut/ })).toBeVisible();
+  await expect(table.getByRole('rowheader', { name: /Melena recogida en moño/ })).toHaveCount(0);
+  await expect(table.getByRole('rowheader', { name: /Largo con flequillo recto/ })).toContainText('femenino / andrógino');
+});

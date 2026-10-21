@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { CATALOG, getStyle } from '../../shared/catalog/styles.ts';
-import { aestheticLabels, lengthCategoryLabels, type LengthCategory } from '../../shared/labels.ts';
+import { aestheticLabels, lengthCategoryLabels, styleCodeLabel, type LengthCategory } from '../../shared/labels.ts';
 import { HeadSheet } from '../figures/HeadSheet.tsx';
 import { useStartExample } from '../studio/results/useExample.ts';
 import { Wordmark } from '../ui/Wordmark.tsx';
@@ -68,6 +68,13 @@ const TEXTURE_FILTERS = [
   { value: 'wavy', label: 'Ondulado' },
   { value: 'curly', label: 'Rizado' },
   { value: 'coily', label: 'Afro' },
+] as const;
+
+const STYLE_FILTERS = [
+  { value: 'any', label: 'Todos' },
+  { value: 'masculine', label: 'Masculinos' },
+  { value: 'feminine', label: 'Femeninos' },
+  { value: 'androgynous', label: 'Andróginos' },
 ] as const;
 
 const TIME_FILTERS = [
@@ -216,25 +223,44 @@ function Showcase() {
 }
 
 function LineUp() {
+  const [code, setCode] = useState<(typeof STYLE_FILTERS)[number]['value']>('any');
   const [texture, setTexture] = useState<(typeof TEXTURE_FILTERS)[number]['value']>('any');
   const [time, setTime] = useState<(typeof TIME_FILTERS)[number]['value']>('any');
   const id = useId();
   const fits = (style: (typeof CATALOG)[number]) =>
-    (texture === 'any' || style.textures.includes(texture)) && (time === 'any' || style.minutes <= Number(time));
+    (code === 'any' || style.expressions.includes(code)) &&
+    (texture === 'any' || style.textures.includes(texture)) &&
+    (time === 'any' || style.minutes <= Number(time));
   const count = CATALOG.filter(fits).length;
   const textureWord = TEXTURE_FILTERS.find((item) => item.value === texture)!.label.toLowerCase();
+  const codeWord = STYLE_FILTERS.find((item) => item.value === code)!.label.toLowerCase();
+  const conditions = [
+    code !== 'any' ? `de estilos ${codeWord}` : '',
+    texture !== 'any' ? `para pelo ${textureWord}` : '',
+    time !== 'any' ? `de hasta ${time} minutos al día` : '',
+  ].filter(Boolean);
   const summary =
-    texture === 'any' && time === 'any'
-      ? `Los ${CATALOG.length} cortes que conoce FOLIA`
-      : `${count} de ${CATALOG.length} cortes encajan${texture !== 'any' ? ` con pelo ${textureWord}` : ''}${time !== 'any' ? ` y hasta ${time} minutos al día` : ''}`;
+    conditions.length === 0 ? `Los ${CATALOG.length} cortes que conoce FOLIA` : `${count} de ${CATALOG.length} cortes: ${conditions.join(', ')}`;
 
   return (
     <section className="lineup" aria-labelledby="lineup-title" data-reveal>
       <h2 id="lineup-title" className="lineup-title">
         El catálogo
       </h2>
-      <p className="lineup-lede">FOLIA solo recomienda cortes que sabe describir a un peluquero. Prueba con tu pelo y tu tiempo:</p>
+      <p className="lineup-lede">
+        FOLIA solo recomienda cortes que sabe describir a un peluquero. Un largo masculino no es un largo femenino: cada corte lleva sus códigos.
+        Prueba con tus estilos, tu pelo y tu tiempo:
+      </p>
       <div className="lineup-filters">
+        <fieldset className="segmented">
+          <legend>Estilos</legend>
+          {STYLE_FILTERS.map((item) => (
+            <label key={item.value}>
+              <input type="radio" name={`${id}-code`} value={item.value} checked={code === item.value} onChange={() => setCode(item.value)} />
+              <span>{item.label}</span>
+            </label>
+          ))}
+        </fieldset>
         <fieldset className="segmented">
           <legend>Tu pelo</legend>
           {TEXTURE_FILTERS.map((item) => (
@@ -264,7 +290,9 @@ function LineUp() {
         {summary}
       </p>
       <table className="lineup-table">
-        <caption className="visually-hidden">Catálogo de cortes de FOLIA con su estética, tiempo de peinado y cada cuánto cortar</caption>
+        <caption className="visually-hidden">
+          Catálogo de cortes de FOLIA con sus estilos, su estética, el tiempo de peinado y cada cuánto cortar
+        </caption>
         <thead className="visually-hidden">
           <tr>
             <th scope="col">Corte</th>
@@ -289,7 +317,9 @@ function LineUp() {
               ) : (
                 rows.map((style) => (
                   <tr key={style.id}>
-                    <th scope="row">{style.name}</th>
+                    <th scope="row">
+                      {style.name} <span className="lineup-code">{styleCodeLabel(style.expressions)}</span>
+                    </th>
                     <td>
                       {style.aesthetics
                         .slice(0, 2)

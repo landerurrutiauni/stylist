@@ -122,7 +122,7 @@ Todas están documentadas en [`.env.example`](.env.example). Las importantes:
 
 ```
 src/            web (React 19 + Vite + TypeScript): portada, estudio, resultados, dibujos de cortes
-shared/         esquemas Zod, catálogo de 30 cortes, etiquetas, puntuación, lectura de imágenes (web y servidor)
+shared/         esquemas Zod, catálogo de 44 cortes, etiquetas, puntuación, lectura de imágenes (web y servidor)
 server/core/    API independiente de la plataforma: handler, Anthropic, Gemini, validación, límites
 server/node/    servidor local de desarrollo
 server/supabase/ punto de entrada de la Edge Function

@@ -19,6 +19,11 @@ describe('analysis prompt', () => {
     for (const style of CATALOG) expect(SYSTEM_PROMPT).toContain(style.id);
   });
 
+  it('describes the shape of each cut and keeps codes apart', () => {
+    expect(SYSTEM_PROMPT).toContain('shape: ends at shoulder | parting: none | fringe: none | combed back | worn in a bun');
+    expect(SYSTEM_PROMPT).toMatch(/do not rename a feminine cut to make it pass as masculine/);
+  });
+
   it('describes every answer, marks free text and adds the refinement', () => {
     const text = describeAnswers(ANSWERS, 'Más opciones con flequillo');
     expect(text).toContain('Ondulado');

@@ -140,6 +140,20 @@ function recommend(style: CatalogStyle, answers: Answers): Recommendation {
   };
 }
 
+/**
+ * The best-scoring cuts, preferring a different parting and fringe for each
+ * pick so the options are not three versions of one silhouette.
+ */
+function pickDistinct<T extends { style: CatalogStyle }>(pool: T[], count: number): T[] {
+  const shape = (item: T) => `${item.style.figure.part}/${item.style.figure.fringe}/${item.style.figure.bun ? 'bun' : ''}`;
+  const picked: T[] = [];
+  for (const item of pool) {
+    if (picked.length < count && !picked.some((other) => shape(other) === shape(item))) picked.push(item);
+  }
+  for (const item of pool) if (picked.length < count && !picked.includes(item)) picked.push(item);
+  return picked;
+}
+
 export function demoAnalysis(answers: Answers, refinement = ''): AnalysisEnvelope {
   const candidates = CATALOG.filter((style) => fitsExpression(style, answers))
     .map((style) => ({ style, rec: recommend(style, answers) }))
@@ -151,7 +165,7 @@ export function demoAnalysis(answers: Answers, refinement = ''): AnalysisEnvelop
   const coverage: AnalysisOutput['coverage'] = { short: '', medium: '', long: '' };
   for (const length of lengths) {
     const pool = candidates.filter((item) => item.style.length === length && item.rec.factors.hair.rating >= 2);
-    const picked = pool.slice(0, 3);
+    const picked = pickDistinct(pool, 3);
     recommendations.push(...picked.map((item) => item.rec));
     if (picked.length < 3) {
       coverage[length] =
